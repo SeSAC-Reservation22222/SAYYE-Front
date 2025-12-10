@@ -1,0 +1,233 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Header from "@/components/common/Header";
+import Button from "@/components/common/Button";
+import Card from "@/components/common/Card";
+import Input from "@/components/common/Input";
+import Select from "@/components/common/Select";
+import { roomApi } from "@/lib/api/room";
+import { courseApi } from "@/lib/api/course";
+import { reservationApi } from "@/lib/api/reservation";
+import type { RoomResponse, CourseResponse, ReservationRequest } from "@/types";
+
+export default function ReservePage() {
+  const router = useRouter();
+  const [rooms, setRooms] = useState<RoomResponse[]>([]);
+  const [courses, setCourses] = useState<CourseResponse[]>([]);
+  const [selectedRoom, setSelectedRoom] = useState<number | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>(
+    new Date().toISOString().split("T")[0]
+  );
+  const [startTime, setStartTime] = useState<string>("13:00:00");
+  const [duration, setDuration] = useState<number>(2);
+  const [formData, setFormData] = useState({
+    courseId: "",
+    userName: "",
+    phoneLastNumber: "",
+  });
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [roomsData, coursesData] = await Promise.all([
+        roomApi.getRooms(),
+        courseApi.getCourses(),
+      ]);
+      setRooms(roomsData);
+      setCourses(coursesData);
+      if (roomsData.length > 0) {
+        setSelectedRoom(roomsData[0].id);
+      }
+    } catch (error) {
+      console.error("데이터 조회 실패:", error);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedRoom) return;
+
+    setLoading(true);
+    try {
+      const endTime = calculateEndTime(startTime, duration);
+      const reservationData: ReservationRequest = {
+        courseId: Number(formData.courseId),
+        userName: formData.userName,
+        phoneLastNumber: formData.phoneLastNumber,
+        startTime,
+        endTime,
+        reservationDate: selectedDate,
+      };
+
+      await reservationApi.createReservation(selectedRoom, reservationData);
+      alert("예약이 완료되었습니다!");
+      router.push("/rooms");
+    } catch (error: any) {
+      alert(error.response?.data?.message || "예약에 실패했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const calculateEndTime = (start: string, hours: number): string => {
+    const [h, m, s] = start.split(":").map(Number);
+    const totalMinutes = h * 60 + m + hours * 60;
+    const endHour = Math.floor(totalMinutes / 60);
+    const endMinute = totalMinutes % 60;
+    return `${endHour.toString().padStart(2, "0")}:${endMinute.toString().padStart(2, "0")}:${s}`;
+  };
+
+  const timeOptions = Array.from({ length: 20 }, (_, i) => {
+    const hour = 10 + i;
+    return {
+      value: `${hour.toString().padStart(2, "0")}:00:00`,
+      label: `${hour}:00`,
+    };
+  });
+
+  const durationOptions = [
+    { value: "0.5", label: "30분" },
+    { value: "1", label: "1시간" },
+    { value: "1.5", label: "1시간 30분" },
+    { value: "2", label: "2시간" },
+  ];
+
+  return (
+    <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+      <Header />
+      <main className="flex-1 w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-col lg:flex-row gap-8">
+          <aside className="w-full lg:w-1/3 xl:w-1/4 flex flex-col gap-6">
+            <h1 className="text-4xl font-black tracking-tight">회의실 예약</h1>
+            <Card>
+              <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+                <div>
+                  <label className="font-bold text-base mb-2 block">시작 시간</label>
+                  <Select
+                    options={timeOptions}
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <p className="font-bold text-base mb-2">사용 시간 (최대 2시간)</p>
+                  <div className="flex gap-2 mt-2 flex-wrap">
+                    {durationOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setDuration(Number(option.value))}
+                        className={`h-10 px-4 rounded-lg text-sm font-medium transition-colors ${
+                          duration === Number(option.value)
+                            ? "bg-primary text-white"
+                            : "bg-primary/20 hover:bg-primary/30"
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex flex-col gap-4">
+                  <h3 className="text-lg font-bold">예약자 정보</h3>
+                  <Select
+                    label="클래스"
+                    options={[
+                      { value: "", label: "클래스 선택" },
+                      ...courses.map((course) => ({
+                        value: course.id.toString(),
+                        label: course.courseName,
+                      })),
+                    ]}
+                    value={formData.courseId}
+                    onChange={(e) =>
+                      setFormData({ ...formData, courseId: e.target.value })
+                    }
+                    required
+                  />
+                  <Input
+                    label="이름"
+                    placeholder="이름"
+                    value={formData.userName}
+                    onChange={(e) =>
+                      setFormData({ ...formData, userName: e.target.value })
+                    }
+                    required
+                    minLength={2}
+                  />
+                  <Input
+                    label="연락처 (뒷 4자리)"
+                    placeholder="1234"
+                    type="tel"
+                    pattern="[0-9]{4}"
+                    value={formData.phoneLastNumber}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phoneLastNumber: e.target.value })
+                    }
+                    required
+                    maxLength={4}
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-base mb-2 block">예약 날짜</label>
+                  <Input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    min={new Date().toISOString().split("T")[0]}
+                    required
+                  />
+                </div>
+                <Button type="submit" fullWidth disabled={loading}>
+                  <span className="material-symbols-outlined">event_available</span>
+                  예약 확정하기
+                </Button>
+              </form>
+            </Card>
+          </aside>
+          <section className="flex-1">
+            <div className="flex flex-col gap-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-bold">
+                    {selectedDate && new Date(selectedDate).toLocaleDateString("ko-KR", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      weekday: "long",
+                    })}
+                  </h2>
+                </div>
+              </div>
+              <Card>
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-lg font-bold">예약 정보 확인</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      선택하신 정보가 맞는지 확인 후 예약을 완료해주세요.
+                    </p>
+                    <p className="text-base font-semibold mt-2">
+                      {rooms.find((r) => r.id === selectedRoom)?.roomName} / {selectedDate} /{" "}
+                      {startTime.split(":").slice(0, 2).join(":")} ~{" "}
+                      {calculateEndTime(startTime, duration)
+                        .split(":")
+                        .slice(0, 2)
+                        .join(":")}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  );
+}
+

@@ -1,0 +1,74 @@
+import { apiClient } from "./client";
+import type {
+  ReservationRequest,
+  ReservationSearchRequest,
+  ReservationUpdateRequest,
+  ReservationResponse,
+  ReservationAdminResponse,
+  PaginatedResponse,
+} from "@/types";
+
+export const reservationApi = {
+  createReservation: async (
+    roomId: number,
+    data: ReservationRequest
+  ): Promise<ReservationResponse> => {
+    const response = await apiClient.post<ReservationResponse>(
+      `/reservations/${roomId}`,
+      data
+    );
+    return response.data;
+  },
+
+  getReservations: async (data: ReservationSearchRequest): Promise<ReservationResponse[]> => {
+    const response = await apiClient.post<ReservationResponse[]>("/reservations", data);
+    return response.data;
+  },
+
+  getReservation: async (
+    reservationId: number,
+    data: ReservationSearchRequest
+  ): Promise<ReservationResponse> => {
+    const response = await apiClient.post<ReservationResponse>(
+      `/reservations/${reservationId}`,
+      data
+    );
+    return response.data;
+  },
+
+  updateReservation: async (
+    reservationId: number,
+    data: ReservationUpdateRequest
+  ): Promise<ReservationResponse> => {
+    const response = await apiClient.patch<ReservationResponse>(
+      `/reservations/${reservationId}`,
+      data
+    );
+    return response.data;
+  },
+
+  deleteReservation: async (
+    reservationId: number,
+    data: ReservationSearchRequest
+  ): Promise<void> => {
+    await apiClient.delete(`/reservations/${reservationId}`, { data });
+  },
+
+  getAdminReservations: async (page: number = 1): Promise<PaginatedResponse<ReservationAdminResponse>> => {
+    const response = await apiClient.get<PaginatedResponse<ReservationAdminResponse>>(
+      `/reservations?page=${page}`
+    );
+    return response.data;
+  },
+
+  getRoomReservations: async (
+    roomId: number,
+    reservationDate: string
+  ): Promise<ReservationResponse[]> => {
+    const response = await apiClient.get<ReservationResponse[]>(
+      `/reservations/${roomId}?reservationDate=${reservationDate}`
+    );
+    return response.data;
+  },
+};
+
