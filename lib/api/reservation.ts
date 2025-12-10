@@ -14,14 +14,20 @@ export const reservationApi = {
     data: ReservationRequest
   ): Promise<ReservationResponse> => {
     const response = await apiClient.post<ReservationResponse>(
-      `/reservations/${roomId}`,
+      `/rooms/${roomId}/reservations`,
       data
     );
     return response.data;
   },
 
-  getReservations: async (data: ReservationSearchRequest): Promise<ReservationResponse[]> => {
-    const response = await apiClient.post<ReservationResponse[]>("/reservations", data);
+  getReservations: async (
+    roomId: number,
+    params: ReservationSearchRequest
+  ): Promise<ReservationResponse[]> => {
+    const response = await apiClient.get<ReservationResponse[]>(
+      `/rooms/${roomId}/reservations`,
+      { params }
+    );
     return response.data;
   },
 
@@ -65,9 +71,9 @@ export const reservationApi = {
     roomId: number,
     reservationDate: string
   ): Promise<ReservationResponse[]> => {
-    const response = await apiClient.get<ReservationResponse[]>(
-      `/reservations/${roomId}?reservationDate=${reservationDate}`
-    );
+    const response = await apiClient.get<ReservationResponse[]>(`/rooms/${roomId}/reservations`, {
+      params: { reservationDate },
+    });
     return response.data;
   },
 };

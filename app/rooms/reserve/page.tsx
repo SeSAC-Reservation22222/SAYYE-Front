@@ -80,7 +80,10 @@ export default function ReservePage() {
     const totalMinutes = h * 60 + m + hours * 60;
     const endHour = Math.floor(totalMinutes / 60);
     const endMinute = totalMinutes % 60;
-    return `${endHour.toString().padStart(2, "0")}:${endMinute.toString().padStart(2, "0")}:${s}`;
+    const paddedSeconds = s.toString().padStart(2, "0");
+    return `${endHour.toString().padStart(2, "0")}:${endMinute
+      .toString()
+      .padStart(2, "0")}:${paddedSeconds}`;
   };
 
   const timeOptions = Array.from({ length: 20 }, (_, i) => {
@@ -123,11 +126,10 @@ export default function ReservePage() {
                         key={option.value}
                         type="button"
                         onClick={() => setDuration(Number(option.value))}
-                        className={`h-10 px-4 rounded-lg text-sm font-medium transition-colors ${
-                          duration === Number(option.value)
+                        className={`h-10 px-4 rounded-lg text-sm font-medium transition-colors ${duration === Number(option.value)
                             ? "bg-primary text-white"
                             : "bg-primary/20 hover:bg-primary/30"
-                        }`}
+                          }`}
                       >
                         {option.label}
                       </button>

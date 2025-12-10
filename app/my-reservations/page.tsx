@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "@/components/common/Header";
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import Card from "@/components/common/Card";
+import Select from "@/components/common/Select";
+import { roomApi } from "@/lib/api/room";
 import { reservationApi } from "@/lib/api/reservation";
-import type { ReservationResponse } from "@/types";
+import type { ReservationResponse, RoomResponse } from "@/types";
 
 export default function MyReservationsPage() {
   const [searchData, setSearchData] = useState({
@@ -14,16 +16,41 @@ export default function MyReservationsPage() {
     phoneLastNumber: "",
   });
   const [reservations, setReservations] = useState<ReservationResponse[]>([]);
+  const [rooms, setRooms] = useState<RoomResponse[]>([]);
+  const [selectedRoom, setSelectedRoom] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [roomsLoading, setRoomsLoading] = useState(true);
   const [searched, setSearched] = useState(false);
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const data = await roomApi.getRooms();
+        setRooms(data);
+        if (data.length > 0) {
+          setSelectedRoom(data[0].id);
+        }
+      } catch (error) {
+        console.error("회의실 목록 조회 실패:", error);
+      } finally {
+        setRoomsLoading(false);
+      }
+    };
+
+    fetchRooms();
+  }, []);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedRoom) {
+      alert("회의실을 선택해주세요.");
+      return;
+    }
     setLoading(true);
     setSearched(false);
 
     try {
-      const data = await reservationApi.getReservations(searchData);
+      const data = await reservationApi.getReservations(selectedRoom, searchData);
       setReservations(data);
       setSearched(true);
     } catch (error: any) {
@@ -52,7 +79,18 @@ export default function MyReservationsPage() {
         <h1 className="text-4xl font-black tracking-tight mb-8">내 예약 조회</h1>
         <Card className="mb-8">
           <form onSubmit={handleSearch} className="flex flex-col gap-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Select
+                label="회의실"
+                value={selectedRoom?.toString() ?? ""}
+                onChange={(e) => setSelectedRoom(Number(e.target.value))}
+                options={rooms.map((room) => ({
+                  value: room.id.toString(),
+                  label: room.name,
+                }))}
+                required
+                disabled={roomsLoading || rooms.length === 0}
+              />
               <Input
                 label="이름"
                 placeholder="이름을 입력하세요"
