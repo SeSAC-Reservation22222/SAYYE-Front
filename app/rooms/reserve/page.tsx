@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/components/common/Header";
 import Button from "@/components/common/Button";
 import Card from "@/components/common/Card";
@@ -14,6 +14,7 @@ import type { RoomResponse, CourseResponse, ReservationRequest } from "@/types";
 
 export default function ReservePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [rooms, setRooms] = useState<RoomResponse[]>([]);
   const [courses, setCourses] = useState<CourseResponse[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<number | null>(null);
@@ -42,6 +43,14 @@ export default function ReservePage() {
       setRooms(roomsData);
       setCourses(coursesData);
       if (roomsData.length > 0) {
+        const roomIdParam = searchParams.get("roomId");
+        if (roomIdParam) {
+          const matchedRoom = roomsData.find((room) => room.id === Number(roomIdParam));
+          if (matchedRoom) {
+            setSelectedRoom(matchedRoom.id);
+            return;
+          }
+        }
         setSelectedRoom(roomsData[0].id);
       }
     } catch (error) {
@@ -127,8 +136,8 @@ export default function ReservePage() {
                         type="button"
                         onClick={() => setDuration(Number(option.value))}
                         className={`h-10 px-4 rounded-lg text-sm font-medium transition-colors ${duration === Number(option.value)
-                            ? "bg-primary text-white"
-                            : "bg-primary/20 hover:bg-primary/30"
+                          ? "bg-primary text-white"
+                          : "bg-primary/20 hover:bg-primary/30"
                           }`}
                       >
                         {option.label}

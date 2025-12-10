@@ -111,7 +111,7 @@ export default function RoomsPage() {
                 회의실 현황
               </a>
               <Link
-                href="/rooms/reserve"
+                href="/rooms/select"
                 className="flex items-center justify-center gap-2 min-w-[100px] h-10 px-4 bg-primary text-white text-sm font-bold rounded-lg hover:bg-opacity-90 transition-all"
               >
                 <span className="material-symbols-outlined !text-[18px]">add</span>
