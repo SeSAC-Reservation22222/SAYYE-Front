@@ -6,15 +6,17 @@ import Card from "@/components/common/Card";
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import { adminApi } from "@/lib/api/admin";
-import type { AdminResponse } from "@/types";
+import { authApi } from "@/lib/api/auth";
+import type { AdminResponse, SignupRequest } from "@/types";
 
 export default function AdminUsersPage() {
   const [admins, setAdmins] = useState<AdminResponse[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showPasswordForm, setShowPasswordForm] = useState<string | null>(null);
-  const [passwordData, setPasswordData] = useState({
-    oldPassword: "",
-    newPassword: "",
+  const [newAdmin, setNewAdmin] = useState<SignupRequest>({
+    userId: "",
+    password: "",
+    name: "",
+    email: "",
   });
 
   useEffect(() => {
@@ -32,21 +34,25 @@ export default function AdminUsersPage() {
     }
   };
 
-  const handlePasswordUpdate = async (userId: string) => {
+  const handleCreate = async () => {
+    if (!newAdmin.userId || !newAdmin.password || !newAdmin.name || !newAdmin.email) {
+      alert("모든 필드를 입력해주세요.");
+      return;
+    }
     try {
-      await adminApi.updatePassword(userId, passwordData);
-      alert("비밀번호가 수정되었습니다.");
-      setShowPasswordForm(null);
-      setPasswordData({ oldPassword: "", newPassword: "" });
+      await authApi.signup(newAdmin);
+      alert("관리자가 추가되었습니다.");
+      setNewAdmin({ userId: "", password: "", name: "", email: "" });
+      fetchAdmins();
     } catch (error: any) {
-      alert(error.response?.data?.message || "비밀번호 수정에 실패했습니다.");
+      alert(error.response?.data?.message || "관리자 추가에 실패했습니다.");
     }
   };
 
-  const handleDelete = async (userId: string) => {
+  const handleDelete = async (adminId: number) => {
     if (!confirm("정말 삭제하시겠습니까?")) return;
     try {
-      await adminApi.deleteAdmin(userId);
+      await adminApi.deleteAdmin(adminId);
       alert("관리자가 삭제되었습니다.");
       fetchAdmins();
     } catch (error: any) {
@@ -68,6 +74,49 @@ export default function AdminUsersPage() {
       <main className="flex-1 w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-4xl font-black tracking-tight mb-8">사용자 관리</h1>
 
+        <Card className="mb-8">
+          <div className="flex flex-col gap-4">
+            <h2 className="text-xl font-bold">관리자 추가</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+              <Input
+                label="ID"
+                value={newAdmin.userId}
+                onChange={(e) => setNewAdmin({ ...newAdmin, userId: e.target.value })}
+                placeholder="admin id"
+                required
+              />
+              <Input
+                label="비밀번호"
+                type="password"
+                value={newAdmin.password}
+                onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })}
+                placeholder="비밀번호"
+                required
+              />
+              <Input
+                label="이름"
+                value={newAdmin.name}
+                onChange={(e) => setNewAdmin({ ...newAdmin, name: e.target.value })}
+                placeholder="이름"
+                required
+              />
+              <Input
+                label="이메일"
+                type="email"
+                value={newAdmin.email}
+                onChange={(e) => setNewAdmin({ ...newAdmin, email: e.target.value })}
+                placeholder="email@example.com"
+                required
+              />
+            </div>
+            <div className="flex justify-end">
+              <Button variant="primary" onClick={handleCreate}>
+                관리자 추가
+              </Button>
+            </div>
+          </div>
+        </Card>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {admins.map((admin) => (
             <Card key={admin.id}>
@@ -80,62 +129,11 @@ export default function AdminUsersPage() {
                     <p>역할: {admin.role}</p>
                   </div>
                 </div>
-                {showPasswordForm === admin.userId ? (
-                  <div className="flex flex-col gap-2">
-                    <Input
-                      label="현재 비밀번호"
-                      type="password"
-                      value={passwordData.oldPassword}
-                      onChange={(e) =>
-                        setPasswordData({ ...passwordData, oldPassword: e.target.value })
-                      }
-                    />
-                    <Input
-                      label="새 비밀번호"
-                      type="password"
-                      value={passwordData.newPassword}
-                      onChange={(e) =>
-                        setPasswordData({ ...passwordData, newPassword: e.target.value })
-                      }
-                    />
-                    <div className="flex gap-2">
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={() => handlePasswordUpdate(admin.userId)}
-                      >
-                        수정
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => {
-                          setShowPasswordForm(null);
-                          setPasswordData({ oldPassword: "", newPassword: "" });
-                        }}
-                      >
-                        취소
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowPasswordForm(admin.userId)}
-                      size="sm"
-                    >
-                      비밀번호 변경
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      onClick={() => handleDelete(admin.userId)}
-                      size="sm"
-                    >
-                      삭제
-                    </Button>
-                  </div>
-                )}
+                <div className="flex gap-2">
+                  <Button variant="secondary" onClick={() => handleDelete(admin.id)} size="sm">
+                    삭제
+                  </Button>
+                </div>
               </div>
             </Card>
           ))}

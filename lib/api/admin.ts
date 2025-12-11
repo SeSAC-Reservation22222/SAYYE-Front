@@ -12,13 +12,13 @@ export const adminApi = {
     return response.data;
   },
 
-  updatePassword: async (userId: string, data: PasswordUpdateRequest): Promise<string> => {
-    const response = await apiClient.patch<string>(`/admins/${userId}`, data);
+  updatePassword: async (adminId: number, data: PasswordUpdateRequest): Promise<string> => {
+    const response = await apiClient.patch<string>(`/admins/${adminId}`, data);
     return response.data;
   },
 
-  deleteAdmin: async (userId: string): Promise<void> => {
-    await apiClient.delete(`/admins/${userId}`);
+  deleteAdmin: async (adminId: number): Promise<void> => {
+    await apiClient.delete(`/admins/${adminId}`);
   },
 };
 

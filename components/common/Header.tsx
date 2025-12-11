@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 interface HeaderProps {
   showLogout?: boolean;
@@ -19,6 +19,34 @@ export default function Header({
   variant = "default"
 }: HeaderProps) {
   const pathname = usePathname();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // 클라이언트에서만 토큰 확인
+    const checkAuth = () => {
+      if (typeof window === "undefined") return;
+      const token = localStorage.getItem("accessToken");
+      setIsLoggedIn(Boolean(token));
+    };
+
+    checkAuth();
+    if (typeof window !== "undefined") {
+      window.addEventListener("storage", checkAuth);
+      return () => window.removeEventListener("storage", checkAuth);
+    }
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      const { authApi } = await import("@/lib/api/auth");
+      await authApi.logout();
+      localStorage.removeItem("accessToken");
+      setIsLoggedIn(false);
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+    }
+  };
 
   // Simple variant for home page
   if (variant === "simple") {
@@ -38,12 +66,21 @@ export default function Header({
             </Link>
             {rightContent || (
               <div className="flex flex-1 items-center justify-end gap-4">
-                <Link
-                  href="/login"
-                  className="flex h-10 min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-primary/20 px-4 text-sm font-bold text-text-light-primary transition-colors hover:bg-primary/30 dark:bg-primary/30 dark:text-text-dark-primary dark:hover:bg-primary/40"
-                >
-                  로그인
-                </Link>
+                {isLoggedIn ? (
+                  <button
+                    onClick={handleLogout}
+                    className="flex h-10 min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-primary/20 px-4 text-sm font-bold text-text-light-primary transition-colors hover:bg-primary/30 dark:bg-primary/30 dark:text-text-dark-primary dark:hover:bg-primary/40"
+                  >
+                    로그아웃
+                  </button>
+                ) : (
+                  <Link
+                    href="/login"
+                    className="flex h-10 min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-primary/20 px-4 text-sm font-bold text-text-light-primary transition-colors hover:bg-primary/30 dark:bg-primary/30 dark:text-text-dark-primary dark:hover:bg-primary/40"
+                  >
+                    로그인
+                  </Link>
+                )}
                 <div className="aspect-square size-10 rounded-full bg-cover bg-center bg-no-repeat bg-gray-300" />
               </div>
             )}

@@ -8,16 +8,21 @@ export const authApi = {
   },
 
   login: async (data: LoginRequest): Promise<void> => {
-    const response = await apiClient.post<string>("/auth/login", data);
-    
+    const response = await apiClient.post<AdminResponse>("/auth/login", data);
+
     // 헤더에서 토큰 추출
     const accessToken = response.headers["authorization"]?.replace("Bearer ", "");
     const refreshToken = response.headers["refresh-token"];
 
-    if (accessToken && typeof window !== "undefined") {
-      localStorage.setItem("accessToken", accessToken);
+    if (typeof window !== "undefined") {
+      if (accessToken) {
+        localStorage.setItem("accessToken", accessToken);
+      }
       if (refreshToken) {
         localStorage.setItem("refreshToken", refreshToken);
+      }
+      if (response.data?.role) {
+        localStorage.setItem("role", response.data.role);
       }
     }
   },
@@ -27,6 +32,7 @@ export const authApi = {
     if (typeof window !== "undefined") {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
+      localStorage.removeItem("role");
     }
   },
 

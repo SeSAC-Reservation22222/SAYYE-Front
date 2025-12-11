@@ -62,14 +62,6 @@ export default function LoginPage() {
             로그인
           </Button>
         </form>
-        <div className="mt-4 text-center">
-          <Link
-            href="/signup"
-            className="text-sm text-primary hover:underline"
-          >
-            계정이 없으신가요? 회원가입
-          </Link>
-        </div>
       </Card>
     </div>
   );
