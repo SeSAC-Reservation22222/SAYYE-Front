@@ -82,12 +82,6 @@ export default function RoomsPage() {
         variant="page"
         rightContent={
           <div className="flex flex-1 justify-end items-center gap-4 sm:gap-6">
-            <a
-              className="text-sm font-medium hover:text-primary transition-colors"
-              href="#"
-            >
-              회의실 현황
-            </a>
             <Link
               href="/rooms/select"
               className="flex items-center justify-center gap-2 min-w-[100px] h-10 px-4 bg-primary text-white text-sm font-bold rounded-lg hover:bg-opacity-90 transition-all"

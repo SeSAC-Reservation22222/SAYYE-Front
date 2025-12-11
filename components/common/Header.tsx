@@ -81,7 +81,15 @@ export default function Header({
                     로그인
                   </Link>
                 )}
-                <div className="aspect-square size-10 rounded-full bg-cover bg-center bg-no-repeat bg-gray-300" />
+                <div className="aspect-square size-10 rounded-full bg-cover bg-center bg-no-repeat overflow-hidden">
+                  <Image
+                    src="/logo.png"
+                    alt="사용자 프로필"
+                    width={40}
+                    height={40}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -129,7 +137,15 @@ export default function Header({
                     notifications
                   </span>
                 </button>
-                <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 bg-gray-300" />
+                <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 overflow-hidden">
+                  <Image
+                    src="/logo.png"
+                    alt="사용자 프로필"
+                    width={40}
+                    height={40}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -143,47 +159,41 @@ export default function Header({
     <header className="sticky top-0 z-50 w-full border-b border-border-light dark:border-border-dark bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm">
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center gap-4 hover:opacity-80 transition-opacity">
-            <Image
-              src="/logo.png"
-              alt="SayYe 로고"
-              width={32}
-              height={32}
-              className="h-8 w-8 object-contain"
-            />
-            <h2 className="text-xl font-bold">Say Ye</h2>
-          </Link>
-          {showNav && (
-            <nav className="hidden md:flex items-center gap-8">
-              <Link
-                href="/rooms"
-                className={`text-sm font-medium transition-colors ${pathname === "/rooms"
-                  ? "text-primary"
-                  : "hover:text-primary"
-                  }`}
-              >
-                회의실 예약
-              </Link>
-              <Link
-                href="/my-reservations"
-                className={`text-sm font-medium transition-colors ${pathname === "/my-reservations"
-                  ? "text-primary"
-                  : "hover:text-primary"
-                  }`}
-              >
-                내 예약
-              </Link>
-              <Link
-                href="/admin"
-                className={`text-sm font-medium transition-colors ${pathname === "/admin"
-                  ? "text-primary"
-                  : "hover:text-primary"
-                  }`}
-              >
-                관리자 페이지
-              </Link>
-            </nav>
-          )}
+          <div className="flex items-center gap-8">
+            <Link href="/" className="flex items-center gap-4 hover:opacity-80 transition-opacity">
+              <Image
+                src="/logo.png"
+                alt="SayYe 로고"
+                width={32}
+                height={32}
+                className="h-8 w-8 object-contain"
+              />
+              <h2 className="text-xl font-bold">Say Ye</h2>
+            </Link>
+            {showNav && (
+              <nav className="hidden md:flex items-center gap-8">
+                {pathname !== "/rooms" && pathname !== "/rooms/reserve" && pathname !== "/rooms/select" && (
+                  <Link
+                    href="/rooms"
+                    className="text-sm font-medium transition-colors hover:text-primary"
+                  >
+                    회의실 예약
+                  </Link>
+                )}
+                {pathname !== "/rooms/reserve" && pathname !== "/rooms/select" && (
+                  <Link
+                    href="/admin"
+                    className={`text-sm font-medium transition-colors ${pathname === "/admin"
+                      ? "text-primary"
+                      : "hover:text-primary"
+                      }`}
+                  >
+                    관리자 페이지
+                  </Link>
+                )}
+              </nav>
+            )}
+          </div>
           {rightContent || (
             <div className="flex items-center gap-4">
               {showLogout && (
@@ -202,12 +212,15 @@ export default function Header({
                   로그아웃
                 </button>
               )}
-              <button className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-primary/20 hover:bg-primary/30 transition-colors">
-                <span className="material-symbols-outlined text-text-light dark:text-text-dark">
-                  notifications
-                </span>
-              </button>
-              <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 bg-gray-300" />
+              <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 overflow-hidden">
+                <Image
+                  src="/logo.png"
+                  alt="사용자 프로필"
+                  width={40}
+                  height={40}
+                  className="h-full w-full object-cover"
+                />
+              </div>
             </div>
           )}
         </div>

@@ -39,9 +39,11 @@ export default function SignupPage() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <Card className="w-full max-w-md">
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-black mb-2">회원가입</h1>
+          <Link href="/">
+            <h1 className="text-3xl font-black mb-2 cursor-pointer hover:text-primary transition-colors">Say Ye</h1>
+          </Link>
           <p className="text-text-light-secondary dark:text-text-dark-secondary">
-            Say Ye 계정을 만드세요
+            회원가입
           </p>
         </div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">

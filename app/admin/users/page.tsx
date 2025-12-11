@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Header from "@/components/common/Header";
 import Card from "@/components/common/Card";
 import Button from "@/components/common/Button";
@@ -121,13 +122,24 @@ export default function AdminUsersPage() {
           {admins.map((admin) => (
             <Card key={admin.id}>
               <div className="flex flex-col gap-4">
-                <div>
-                  <h3 className="text-xl font-bold mb-2">{admin.name}</h3>
-                  <div className="flex flex-col gap-1 text-sm text-text-light-secondary dark:text-text-dark-secondary">
-                    <p>ID: {admin.userId}</p>
-                    <p>이메일: {admin.email}</p>
-                    <p>역할: {admin.role}</p>
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0 size-12 rounded-full overflow-hidden">
+                    <Image
+                      src="/logo.png"
+                      alt={`${admin.name} 프로필`}
+                      width={48}
+                      height={48}
+                      className="h-full w-full object-cover"
+                    />
                   </div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold">{admin.name}</h3>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1 text-sm text-text-light-secondary dark:text-text-dark-secondary">
+                  <p>ID: {admin.userId}</p>
+                  <p>이메일: {admin.email}</p>
+                  <p>역할: {admin.role}</p>
                 </div>
                 <div className="flex gap-2">
                   <Button variant="secondary" onClick={() => handleDelete(admin.id)} size="sm">
