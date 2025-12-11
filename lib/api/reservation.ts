@@ -24,9 +24,12 @@ export const reservationApi = {
     roomId: number,
     params: ReservationSearchRequest
   ): Promise<ReservationResponse[]> => {
-    const response = await apiClient.get<ReservationResponse[]>(
-      `/rooms/${roomId}/reservations`,
-      { params }
+    const response = await apiClient.post<ReservationResponse[]>(
+      `/reservations`,
+      {
+        ...params,
+        roomId
+      }
     );
     return response.data;
   },

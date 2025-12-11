@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import Header from "@/components/common/Header";
 import Card from "@/components/common/Card";
 import Button from "@/components/common/Button";
@@ -33,7 +34,7 @@ export default function AdminPage() {
         active: true,
       },
       {
-        title: "예약 현황 수정",
+        title: "예약 현황 관리",
         description: "전체 회의실의 예약 현황을 확인하고 필요시 수정 또는 취소합니다.",
         icon: "event_available",
         href: "/admin/reservations",
@@ -88,9 +89,15 @@ export default function AdminPage() {
             >
               회의실 예약
             </Link>
-            <button className="relative flex items-center justify-center size-10 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
-              <span className="material-symbols-outlined !text-[24px]">account_circle</span>
-            </button>
+            <div className="relative flex items-center justify-center size-10 rounded-full overflow-hidden">
+              <Image
+                src="/logo.png"
+                alt="사용자 프로필"
+                width={40}
+                height={40}
+                className="h-full w-full object-cover"
+              />
+            </div>
           </div>
         }
       />
@@ -107,8 +114,14 @@ export default function AdminPage() {
               {visibleMenus.map((menu) => (
                 <Card key={menu.title} className="flex flex-col gap-4 hover:shadow-lg transition-shadow">
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center size-10 rounded-lg bg-primary-light">
-                      <span className="material-symbols-outlined text-primary">{menu.icon}</span>
+                    <div className="flex items-center justify-center size-10 rounded-lg bg-primary-light p-1.5">
+                      <Image
+                        src="/logo.png"
+                        alt={menu.title}
+                        width={40}
+                        height={40}
+                        className="h-full w-full object-contain"
+                      />
                     </div>
                     <h3 className="text-lg font-bold">{menu.title}</h3>
                   </div>
@@ -119,13 +132,11 @@ export default function AdminPage() {
                     <Link href={menu.href} className="mt-auto">
                       <Button variant="primary" fullWidth>
                         <span>{menu.title} 바로가기</span>
-                        <span className="material-symbols-outlined !text-[18px]">arrow_forward</span>
                       </Button>
                     </Link>
                   ) : (
                     <Button variant="secondary" fullWidth disabled>
                       <span>{menu.title}</span>
-                      <span className="material-symbols-outlined !text-[18px]">arrow_forward</span>
                     </Button>
                   )}
                 </Card>

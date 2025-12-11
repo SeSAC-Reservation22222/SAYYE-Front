@@ -1,7 +1,26 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import Header from "@/components/common/Header";
 
 export default function HomePage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      if (typeof window === "undefined") return;
+      const token = localStorage.getItem("accessToken");
+      setIsLoggedIn(Boolean(token));
+    };
+
+    checkAuth();
+    if (typeof window !== "undefined") {
+      window.addEventListener("storage", checkAuth);
+      return () => window.removeEventListener("storage", checkAuth);
+    }
+  }, []);
+
   return (
     <div className="relative flex min-h-screen w-full flex-col">
       <Header variant="simple" />
@@ -27,12 +46,21 @@ export default function HomePage() {
                   >
                     <span className="truncate">회의실 현황</span>
                   </Link>
-                  <Link
-                    href="/admin"
-                    className="flex h-12 min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl bg-primary/20 px-5 text-base font-bold text-text-light-primary transition-colors hover:bg-primary/30 dark:bg-primary/30 dark:text-text-dark-primary dark:hover:bg-primary/40"
-                  >
-                    <span className="truncate">관리자 페이지</span>
-                  </Link>
+                  {isLoggedIn ? (
+                    <Link
+                      href="/admin"
+                      className="flex h-12 min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl bg-primary/20 px-5 text-base font-bold text-text-light-primary transition-colors hover:bg-primary/30 dark:bg-primary/30 dark:text-text-dark-primary dark:hover:bg-primary/40"
+                    >
+                      <span className="truncate">관리자 페이지</span>
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/my-reservations"
+                      className="flex h-12 min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl bg-primary px-5 text-base font-bold text-text-light-primary shadow-lg shadow-primary/20 transition-transform hover:scale-105"
+                    >
+                      <span className="truncate">내 예약</span>
+                    </Link>
+                  )}
                 </div>
               </div>
             </main>

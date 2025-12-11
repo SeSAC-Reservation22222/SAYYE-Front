@@ -86,7 +86,7 @@ export default function MyReservationsPage() {
                 onChange={(e) => setSelectedRoom(Number(e.target.value))}
                 options={rooms.map((room) => ({
                   value: room.id.toString(),
-                  label: room.name,
+                  label: room.roomName,
                 }))}
                 required
                 disabled={roomsLoading || rooms.length === 0}
