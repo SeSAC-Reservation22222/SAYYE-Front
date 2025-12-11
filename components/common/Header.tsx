@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode } from "react";
 
 interface HeaderProps {
   showLogout?: boolean;
@@ -19,28 +19,6 @@ export default function Header({
   variant = "default"
 }: HeaderProps) {
   const pathname = usePathname();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    // 클라이언트 사이드에서만 실행
-    const checkAuth = () => {
-      if (typeof window !== "undefined") {
-        const token = localStorage.getItem("accessToken");
-        setIsLoggedIn(!!token);
-      }
-    };
-
-    // 초기 확인
-    checkAuth();
-
-    // storage 이벤트 리스너 추가 (다른 탭에서 로그인/로그아웃 시 동기화)
-    if (typeof window !== "undefined") {
-      window.addEventListener("storage", checkAuth);
-      return () => {
-        window.removeEventListener("storage", checkAuth);
-      };
-    }
-  }, []);
 
   // Simple variant for home page
   if (variant === "simple") {
@@ -60,30 +38,12 @@ export default function Header({
             </Link>
             {rightContent || (
               <div className="flex flex-1 items-center justify-end gap-4">
-                {isLoggedIn ? (
-                  <button
-                    onClick={async () => {
-                      try {
-                        const { authApi } = await import("@/lib/api/auth");
-                        await authApi.logout();
-                        setIsLoggedIn(false);
-                        window.location.href = "/login";
-                      } catch (error) {
-                        console.error("로그아웃 실패:", error);
-                      }
-                    }}
-                    className="flex h-10 min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-primary/20 px-4 text-sm font-bold text-text-light-primary transition-colors hover:bg-primary/30 dark:bg-primary/30 dark:text-text-dark-primary dark:hover:bg-primary/40"
-                  >
-                    로그아웃
-                  </button>
-                ) : (
-                  <Link
-                    href="/login"
-                    className="flex h-10 min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-primary/20 px-4 text-sm font-bold text-text-light-primary transition-colors hover:bg-primary/30 dark:bg-primary/30 dark:text-text-dark-primary dark:hover:bg-primary/40"
-                  >
-                    로그인
-                  </Link>
-                )}
+                <Link
+                  href="/login"
+                  className="flex h-10 min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-primary/20 px-4 text-sm font-bold text-text-light-primary transition-colors hover:bg-primary/30 dark:bg-primary/30 dark:text-text-dark-primary dark:hover:bg-primary/40"
+                >
+                  로그인
+                </Link>
                 <div className="aspect-square size-10 rounded-full bg-cover bg-center bg-no-repeat bg-gray-300" />
               </div>
             )}
