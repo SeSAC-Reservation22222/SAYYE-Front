@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Say Ye - 회의실 예약 시스템",
+  title: "SayYe",
   description: "회의실 예약 및 관리 시스템",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
