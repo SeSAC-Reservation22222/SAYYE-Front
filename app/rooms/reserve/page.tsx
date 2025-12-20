@@ -10,7 +10,8 @@ import Select from "@/components/common/Select";
 import { roomApi } from "@/lib/api/room";
 import { courseApi } from "@/lib/api/course";
 import { reservationApi } from "@/lib/api/reservation";
-import type { RoomResponse, CourseResponse, ReservationRequest } from "@/types";
+import { getDecodedToken, isAdmin } from "@/lib/utils/jwt";
+import type { RoomResponse, CourseResponse, ReservationRequest, AdminReservationRequest } from "@/types";
 
 export default function ReservePage() {
   const router = useRouter();
@@ -29,8 +30,13 @@ export default function ReservePage() {
     phoneLastNumber: "",
   });
   const [loading, setLoading] = useState(false);
+  const [isAdminUser, setIsAdminUser] = useState(false);
 
   useEffect(() => {
+    // 관리자 여부 확인
+    const adminStatus = isAdmin();
+    setIsAdminUser(adminStatus);
+
     fetchData();
   }, []);
 
@@ -65,16 +71,28 @@ export default function ReservePage() {
     setLoading(true);
     try {
       const endTime = calculateEndTime(startTime, duration);
-      const reservationData: ReservationRequest = {
-        courseId: Number(formData.courseId),
-        userName: formData.userName,
-        phoneLastNumber: formData.phoneLastNumber,
-        startTime,
-        endTime,
-        reservationDate: selectedDate,
-      };
 
-      await reservationApi.createReservation(selectedRoom, reservationData);
+      if (isAdminUser) {
+        // 관리자인 경우: 시간과 날짜만 전송
+        const adminReservationData: AdminReservationRequest = {
+          startTime,
+          endTime,
+          reservationDate: selectedDate,
+        };
+        await reservationApi.createAdminReservation(selectedRoom, adminReservationData);
+      } else {
+        // 일반 사용자인 경우: 모든 정보 전송
+        const reservationData: ReservationRequest = {
+          courseId: Number(formData.courseId),
+          userName: formData.userName,
+          phoneLastNumber: formData.phoneLastNumber,
+          startTime,
+          endTime,
+          reservationDate: selectedDate,
+        };
+        await reservationApi.createReservation(selectedRoom, reservationData);
+      }
+
       alert("예약이 완료되었습니다!");
       router.push("/rooms");
     } catch (error: any) {
@@ -147,43 +165,52 @@ export default function ReservePage() {
                 </div>
                 <div className="flex flex-col gap-4">
                   <h3 className="text-lg font-bold">예약자 정보</h3>
-                  <Select
-                    label="클래스"
-                    options={[
-                      { value: "", label: "클래스 선택" },
-                      ...courses.map((course) => ({
-                        value: course.id.toString(),
-                        label: course.courseName,
-                      })),
-                    ]}
-                    value={formData.courseId}
-                    onChange={(e) =>
-                      setFormData({ ...formData, courseId: e.target.value })
-                    }
-                    required
-                  />
-                  <Input
-                    label="이름"
-                    placeholder="이름"
-                    value={formData.userName}
-                    onChange={(e) =>
-                      setFormData({ ...formData, userName: e.target.value })
-                    }
-                    required
-                    minLength={2}
-                  />
-                  <Input
-                    label="연락처 (뒷 4자리)"
-                    placeholder="1234"
-                    type="tel"
-                    pattern="[0-9]{4}"
-                    value={formData.phoneLastNumber}
-                    onChange={(e) =>
-                      setFormData({ ...formData, phoneLastNumber: e.target.value })
-                    }
-                    required
-                    maxLength={4}
-                  />
+                  {isAdminUser ? (
+                    <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 text-sm">
+                      <span className="material-symbols-outlined text-primary inline-block align-middle mr-1">info</span>
+                      관리자로 로그인되어 있습니다. 시간과 날짜만 선택하여 예약하세요.
+                    </div>
+                  ) : (
+                    <>
+                      <Select
+                        label="클래스"
+                        options={[
+                          { value: "", label: "클래스 선택" },
+                          ...courses.map((course) => ({
+                            value: course.id.toString(),
+                            label: course.courseName,
+                          })),
+                        ]}
+                        value={formData.courseId}
+                        onChange={(e) =>
+                          setFormData({ ...formData, courseId: e.target.value })
+                        }
+                        required
+                      />
+                      <Input
+                        label="이름"
+                        placeholder="이름"
+                        value={formData.userName}
+                        onChange={(e) =>
+                          setFormData({ ...formData, userName: e.target.value })
+                        }
+                        required
+                        minLength={2}
+                      />
+                      <Input
+                        label="연락처 (뒷 4자리)"
+                        placeholder="1234"
+                        type="tel"
+                        pattern="[0-9]{4}"
+                        value={formData.phoneLastNumber}
+                        onChange={(e) =>
+                          setFormData({ ...formData, phoneLastNumber: e.target.value })
+                        }
+                        required
+                        maxLength={4}
+                      />
+                    </>
+                  )}
                 </div>
                 <div>
                   <label className="font-bold text-base mb-2 block">예약 날짜</label>

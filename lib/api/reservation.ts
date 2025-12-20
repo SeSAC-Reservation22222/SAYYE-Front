@@ -1,6 +1,7 @@
 import { apiClient } from "./client";
 import type {
   ReservationRequest,
+  AdminReservationRequest,
   ReservationSearchRequest,
   ReservationUpdateRequest,
   ReservationResponse,
@@ -15,6 +16,17 @@ export const reservationApi = {
   ): Promise<ReservationResponse> => {
     const response = await apiClient.post<ReservationResponse>(
       `/rooms/${roomId}/reservations`,
+      data
+    );
+    return response.data;
+  },
+
+  createAdminReservation: async (
+    roomId: number,
+    data: AdminReservationRequest
+  ): Promise<ReservationResponse> => {
+    const response = await apiClient.post<ReservationResponse>(
+      `/admins/rooms/${roomId}/reservations`,
       data
     );
     return response.data;
