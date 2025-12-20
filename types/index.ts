@@ -73,6 +73,12 @@ export interface ReservationRequest {
   reservationDate: string; // YYYY-MM-DD
 }
 
+export interface AdminReservationRequest {
+  startTime: string; // HH:mm:ss
+  endTime: string; // HH:mm:ss
+  reservationDate: string; // YYYY-MM-DD
+}
+
 export interface ReservationSearchRequest {
   userName: string;
   phoneLastNumber: string;
