@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
+import { isAdmin } from "@/lib/utils/jwt";
 
 interface HeaderProps {
   showLogout?: boolean;
@@ -20,6 +21,7 @@ export default function Header({
 }: HeaderProps) {
   const pathname = usePathname();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdminUser, setIsAdminUser] = useState(false);
 
   useEffect(() => {
     // 클라이언트에서만 토큰 확인
@@ -27,6 +29,10 @@ export default function Header({
       if (typeof window === "undefined") return;
       const token = localStorage.getItem("accessToken");
       setIsLoggedIn(Boolean(token));
+
+      // 관리자 여부 확인
+      const adminStatus = isAdmin();
+      setIsAdminUser(adminStatus);
     };
 
     checkAuth();
@@ -180,7 +186,7 @@ export default function Header({
                     회의실 예약
                   </Link>
                 )}
-                {pathname !== "/rooms/reserve" && pathname !== "/rooms/select" && (
+                {isAdminUser && pathname !== "/rooms/reserve" && pathname !== "/rooms/select" && (
                   <Link
                     href="/admin"
                     className={`text-sm font-medium transition-colors ${pathname === "/admin"

@@ -6,6 +6,7 @@ import Image from "next/image";
 import Header from "@/components/common/Header";
 import Card from "@/components/common/Card";
 import Button from "@/components/common/Button";
+import AdminGuard from "@/components/common/AdminGuard";
 import type { AdminRole } from "@/types";
 
 export default function AdminPage() {
@@ -77,75 +78,77 @@ export default function AdminPage() {
   );
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col">
-      <Header
-        showLogout
-        variant="page"
-        rightContent={
-          <div className="flex flex-1 justify-end items-center gap-4 sm:gap-6">
-            <Link
-              className="text-sm font-medium hover:text-primary transition-colors"
-              href="/rooms"
-            >
-              회의실 예약
-            </Link>
-            <div className="relative flex items-center justify-center size-10 rounded-full overflow-hidden">
-              <Image
-                src="/logo.png"
-                alt="사용자 프로필"
-                width={40}
-                height={40}
-                className="h-full w-full object-cover"
-              />
+    <AdminGuard>
+      <div className="relative flex min-h-screen w-full flex-col">
+        <Header
+          showLogout
+          variant="page"
+          rightContent={
+            <div className="flex flex-1 justify-end items-center gap-4 sm:gap-6">
+              <Link
+                className="text-sm font-medium hover:text-primary transition-colors"
+                href="/rooms"
+              >
+                회의실 예약
+              </Link>
+              <div className="relative flex items-center justify-center size-10 rounded-full overflow-hidden">
+                <Image
+                  src="/logo.png"
+                  alt="사용자 프로필"
+                  width={40}
+                  height={40}
+                  className="h-full w-full object-cover"
+                />
+              </div>
             </div>
-          </div>
-        }
-      />
-      <main className="flex flex-1 justify-center px-4 sm:px-8 md:px-12 lg:px-20 xl:px-40 py-5">
-        <div className="flex w-full max-w-7xl flex-col">
-          <main className="flex flex-col gap-10 mt-8">
-            <div className="px-2">
-              <h2 className="text-4xl font-black tracking-tighter">관리자 페이지</h2>
-              <p className="mt-2 text-text-light-secondary dark:text-dark-secondary">
-                Say Ye 시스템을 관리하고 설정을 변경합니다.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2">
-              {visibleMenus.map((menu) => (
-                <Card key={menu.title} className="flex flex-col gap-4 hover:shadow-lg transition-shadow">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center size-10 rounded-lg bg-primary-light p-1.5">
-                      <Image
-                        src="/logo.png"
-                        alt={menu.title}
-                        width={40}
-                        height={40}
-                        className="h-full w-full object-contain"
-                      />
+          }
+        />
+        <main className="flex flex-1 justify-center px-4 sm:px-8 md:px-12 lg:px-20 xl:px-40 py-5">
+          <div className="flex w-full max-w-7xl flex-col">
+            <main className="flex flex-col gap-10 mt-8">
+              <div className="px-2">
+                <h2 className="text-4xl font-black tracking-tighter">관리자 페이지</h2>
+                <p className="mt-2 text-text-light-secondary dark:text-dark-secondary">
+                  Say Ye 시스템을 관리하고 설정을 변경합니다.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2">
+                {visibleMenus.map((menu) => (
+                  <Card key={menu.title} className="flex flex-col gap-4 hover:shadow-lg transition-shadow">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-center size-10 rounded-lg bg-primary-light p-1.5">
+                        <Image
+                          src="/logo.png"
+                          alt={menu.title}
+                          width={40}
+                          height={40}
+                          className="h-full w-full object-contain"
+                        />
+                      </div>
+                      <h3 className="text-lg font-bold">{menu.title}</h3>
                     </div>
-                    <h3 className="text-lg font-bold">{menu.title}</h3>
-                  </div>
-                  <p className="text-sm text-text-light-secondary dark:text-dark-secondary">
-                    {menu.description}
-                  </p>
-                  {menu.active ? (
-                    <Link href={menu.href} className="mt-auto">
-                      <Button variant="primary" fullWidth>
-                        <span>{menu.title} 바로가기</span>
+                    <p className="text-sm text-text-light-secondary dark:text-dark-secondary">
+                      {menu.description}
+                    </p>
+                    {menu.active ? (
+                      <Link href={menu.href} className="mt-auto">
+                        <Button variant="primary" fullWidth>
+                          <span>{menu.title} 바로가기</span>
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Button variant="secondary" fullWidth disabled>
+                        <span>{menu.title}</span>
                       </Button>
-                    </Link>
-                  ) : (
-                    <Button variant="secondary" fullWidth disabled>
-                      <span>{menu.title}</span>
-                    </Button>
-                  )}
-                </Card>
-              ))}
-            </div>
-          </main>
-        </div>
-      </main>
-    </div>
+                    )}
+                  </Card>
+                ))}
+              </div>
+            </main>
+          </div>
+        </main>
+      </div>
+    </AdminGuard>
   );
 }
 
