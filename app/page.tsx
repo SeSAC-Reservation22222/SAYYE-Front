@@ -65,22 +65,22 @@ export default function HomePage() {
               </div>
             </main>
             <footer className="flex flex-col gap-6 px-5 py-10 text-center @container">
-              <div className="flex flex-wrap items-center justify-center gap-6 @[480px]:flex-row @[480px]:justify-around">
+              <div className="flex flex-col items-center justify-center gap-4">
+                <p className="text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary">
+                  Say Ye 서비스를 이용해보셨나요? 소중한 의견을 들려주세요!
+                </p>
                 <a
-                  className="min-w-40 text-sm font-normal text-text-light-secondary hover:text-text-light-primary dark:text-text-dark-secondary dark:hover:text-text-dark-primary"
-                  href="#"
+                  className="group flex items-center gap-2 rounded-full bg-primary/10 px-6 py-2.5 text-sm font-bold text-primary transition-all hover:bg-primary/20 hover:scale-105 active:scale-95"
+                  href="https://forms.gle/pWtC9qYhgL9EnJks7"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
-                  서비스 약관
-                </a>
-                <a
-                  className="min-w-40 text-sm font-normal text-text-light-secondary hover:text-text-light-primary dark:text-text-dark-secondary dark:hover:text-text-dark-primary"
-                  href="#"
-                >
-                  지원
+                  <span className="text-lg">📋</span>
+                  <span>피드백 설문 참여하기</span>
                 </a>
               </div>
               <p className="text-xs font-normal text-text-light-secondary dark:text-text-dark-secondary">
-                © 2024 Say Ye. All rights reserved.
+                © 2025 Say Ye. All rights reserved.
               </p>
             </footer>
           </div>
