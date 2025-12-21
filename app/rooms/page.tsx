@@ -14,6 +14,7 @@ export default function RoomsPage() {
   );
   const [reservations, setReservations] = useState<Record<number, ReservationResponse[]>>({});
   const [loading, setLoading] = useState(true);
+  const [selectedReservation, setSelectedReservation] = useState<ReservationResponse | null>(null);
 
   useEffect(() => {
     fetchRooms();
@@ -55,17 +56,20 @@ export default function RoomsPage() {
     return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일 ${weekdays[date.getDay()]}요일`;
   };
 
-  const getTimeSlotPosition = (time: string) => {
-    const [hours] = time.split(":").map(Number);
-    return hours - 9; // 9시부터 시작
+  const getTimePosition = (time: string) => {
+    const [hours, minutes] = time.split(":").map(Number);
+    // 9시부터 23시까지 총 14시간 기준 (28개 슬롯)
+    const totalMinutesFromStart = (hours - 9) * 60 + minutes;
+    const totalGridMinutes = 14 * 60;
+    return (totalMinutesFromStart / totalGridMinutes) * 100;
   };
 
-  const getTimeSlotSpan = (startTime: string, endTime: string) => {
-    const start = getTimeSlotPosition(startTime);
-    const [startHours, startMinutes] = startTime.split(":").map(Number);
-    const [endHours, endMinutes] = endTime.split(":").map(Number);
-    const duration = (endHours * 60 + endMinutes - (startHours * 60 + startMinutes)) / 30;
-    return Math.max(1, duration);
+  const getTimeWidth = (startTime: string, endTime: string) => {
+    const [startH, startM] = startTime.split(":").map(Number);
+    const [endH, endM] = endTime.split(":").map(Number);
+    const durationMinutes = (endH * 60 + endM) - (startH * 60 + startM);
+    const totalGridMinutes = 14 * 60;
+    return (durationMinutes / totalGridMinutes) * 100;
   };
 
   if (loading) {
@@ -96,7 +100,7 @@ export default function RoomsPage() {
         <div className="flex w-full max-w-7xl flex-col">
           <main className="flex flex-col gap-6 mt-8">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-2">
-              <p className="text-4xl font-black tracking-tighter">회의실 현황</p>
+              <p className="text-4xl font-black tracking-tighter">회의실 예약 현황</p>
               <div className="flex gap-3">
                 <input
                   type="date"
@@ -108,83 +112,76 @@ export default function RoomsPage() {
             </div>
             <div className="px-2 py-3 overflow-x-auto">
               <div className="inline-block min-w-full overflow-hidden rounded-xl border border-border-light dark:border-border-dark bg-white dark:bg-background-dark shadow-sm">
-                <table className="min-w-full">
-                  <thead>
-                    <tr className="bg-gray-50 dark:bg-white/5">
-                      <th className="sticky left-0 z-10 px-4 py-3 text-left w-40 bg-gray-50 dark:bg-white/5 text-sm font-medium"></th>
-                      {Array.from({ length: 28 }, (_, i) => {
-                        const hour = 9 + Math.floor(i / 2);
-                        const minute = i % 2 === 0 ? "00" : "30";
-                        return (
-                          <th
-                            key={i}
-                            className="px-2 py-3 text-center w-24 text-text-light-secondary dark:text-dark-secondary text-sm font-medium"
-                          >
-                            {i % 2 === 0 ? `${hour}:00` : ""}
-                          </th>
-                        );
-                      })}
-                    </tr>
-                  </thead>
-                  <tbody className="relative">
+                <div className="relative min-w-[1200px]">
+                  {/* Table Header */}
+                  <div className="flex border-b border-border-light dark:border-border-dark bg-gray-50 dark:bg-white/5">
+                    <div className="sticky left-0 z-20 w-40 h-12 bg-gray-50 dark:bg-white/5 border-r border-border-light dark:border-border-dark" />
+                    <div className="flex-1 flex">
+                      {Array.from({ length: 14 }, (_, i) => (
+                        <div key={i} className="flex-1 h-12 flex items-center justify-center text-xs font-medium text-text-light-secondary dark:text-dark-secondary border-r border-border-light/50 dark:border-border-dark/50 last:border-r-0">
+                          {9 + i}:00
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Table Body */}
+                  <div className="relative">
                     {rooms.map((room) => {
                       const roomReservations = reservations[room.id] || [];
                       return (
-                        <tr
-                          key={room.id}
-                          className="border-t border-t-border-light dark:border-t-border-dark group"
-                        >
-                          <td className="sticky left-0 z-10 h-[72px] px-4 py-2 w-40 text-sm font-semibold bg-white dark:bg-background-dark group-hover:bg-gray-50 dark:group-hover:bg-white/5 transition-colors">
+                        <div key={room.id} className="group flex border-b border-border-light dark:border-border-dark last:border-b-0">
+                          {/* Room Name Column */}
+                          <div className="sticky left-0 z-20 w-40 h-20 flex items-center px-4 bg-white dark:bg-background-dark group-hover:bg-gray-50 dark:group-hover:bg-white/5 transition-colors border-r border-border-light dark:border-border-dark text-sm font-semibold">
                             {room.roomName}
-                          </td>
-                          {Array.from({ length: 28 }, (_, i) => {
-                            const hour = 9 + Math.floor(i / 2);
-                            const minute = i % 2 === 0 ? "00" : "30";
-                            const timeString = `${hour.toString().padStart(2, "0")}:${minute}:00`;
-                            
-                            const reservation = roomReservations.find((r) => {
-                              const [startHour, startMin] = r.startTime.split(":").map(Number);
-                              const [endHour, endMin] = r.endTime.split(":").map(Number);
-                              const slotStart = startHour * 60 + startMin;
-                              const slotEnd = endHour * 60 + endMin;
-                              const currentSlot = hour * 60 + (minute === "00" ? 0 : 30);
-                              return currentSlot >= slotStart && currentSlot < slotEnd;
-                            });
+                          </div>
 
-                            if (reservation && i % 2 === 0) {
-                              const span = getTimeSlotSpan(reservation.startTime, reservation.endTime);
-                              return (
-                                <td
-                                  key={i}
-                                  className="p-1"
-                                  colSpan={span}
-                                >
-                                  <div className="group/tooltip relative flex flex-col justify-center h-full rounded-lg bg-primary text-white p-2 cursor-pointer">
-                                    <p className="text-xs font-bold truncate">{reservation.userName}</p>
-                                    <p className="text-xs truncate opacity-80">
-                                      {reservation.startTime} ~ {reservation.endTime}
+                          {/* Timeline Grid Background */}
+                          <div className="relative flex-1 h-20 flex">
+                            {Array.from({ length: 14 }, (_, i) => (
+                              <div key={i} className="flex-1 border-r border-border-light/30 dark:border-border-dark/30 last:border-r-0" />
+                            ))}
+
+                            {/* Reservation Blocks (Absolute) */}
+                            {(() => {
+                              // 겹치는 예약 중 가장 최신(ID가 큰 것)만 필터링
+                              const filteredReservations = [...roomReservations]
+                                .sort((a, b) => b.id - a.id) // ID 내림차순 (최신순)
+                                .reduce((acc: ReservationResponse[], current) => {
+                                  const isOverlapped = acc.some(existing => {
+                                    return (current.startTime < existing.endTime && current.endTime > existing.startTime);
+                                  });
+                                  if (!isOverlapped) acc.push(current);
+                                  return acc;
+                                }, []);
+
+                              return filteredReservations.map((res) => {
+                                const left = getTimePosition(res.startTime);
+                                const width = getTimeWidth(res.startTime, res.endTime);
+                                return (
+                                  <div
+                                    key={res.id}
+                                    onClick={() => setSelectedReservation(res)}
+                                    className="absolute top-2 bottom-2 bg-primary rounded-lg text-white p-2 flex flex-col justify-center min-w-[30px] shadow-sm z-10 transition-all hover:brightness-110 cursor-pointer"
+                                    style={{
+                                      left: `${left}%`,
+                                      width: `${width}%`,
+                                    }}
+                                  >
+                                    <p className="text-xs font-bold truncate">{res.userName}</p>
+                                    <p className="text-[10px] truncate opacity-90">
+                                      {res.startTime.substring(0, 5)} - {res.endTime.substring(0, 5)}
                                     </p>
                                   </div>
-                                </td>
-                              );
-                            }
-
-                            if (!reservation) {
-                              return (
-                                <td
-                                  key={i}
-                                  className="h-[72px] px-2 py-2 hover:bg-primary-light/50 dark:hover:bg-white/10 transition-colors cursor-pointer"
-                                />
-                              );
-                            }
-
-                            return null;
-                          })}
-                        </tr>
+                                );
+                              });
+                            })()}
+                          </div>
+                        </div>
                       );
                     })}
-                  </tbody>
-                </table>
+                  </div>
+                </div>
               </div>
             </div>
             <div className="flex items-center justify-end gap-6 px-4 py-2 text-sm text-text-light-secondary dark:text-dark-secondary">
@@ -196,6 +193,60 @@ export default function RoomsPage() {
           </main>
         </div>
       </main>
+      {/* Reservation Detail Modal */}
+      {selectedReservation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setSelectedReservation(null)}>
+          <div className="bg-white dark:bg-background-dark w-full max-w-sm rounded-2xl shadow-2xl p-6 flex flex-col gap-4 animate-in fade-in zoom-in duration-200" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-start">
+              <h3 className="text-xl font-bold">예약 상세 정보</h3>
+              <button 
+                onClick={() => setSelectedReservation(null)}
+                className="p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <div className="flex flex-col gap-3 mt-2">
+              <div className="flex flex-col">
+                <span className="text-xs text-text-light-secondary dark:text-dark-secondary font-medium">회의실</span>
+                <span className="text-base font-semibold">{selectedReservation.roomName}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs text-text-light-secondary dark:text-dark-secondary font-medium">예약자</span>
+                <span className="text-base font-semibold">{selectedReservation.userName}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs text-text-light-secondary dark:text-dark-secondary font-medium">예약 시간</span>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="px-2 py-1 bg-primary/10 text-primary rounded text-sm font-bold">
+                    {selectedReservation.startTime.substring(0, 5)}
+                  </span>
+                  <span className="text-gray-400">→</span>
+                  <span className="px-2 py-1 bg-primary/10 text-primary rounded text-sm font-bold">
+                    {selectedReservation.endTime.substring(0, 5)}
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs text-text-light-secondary dark:text-dark-secondary font-medium">상태</span>
+                <span className={`text-sm font-bold mt-1 ${
+                  selectedReservation.status === "예약" ? "text-green-500" : "text-red-500"
+                }`}>
+                  ● {selectedReservation.status}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setSelectedReservation(null)}
+              className="mt-4 w-full h-11 bg-primary text-white font-bold rounded-xl hover:opacity-90 transition-opacity"
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
