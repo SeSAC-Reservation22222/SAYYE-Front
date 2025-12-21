@@ -110,14 +110,15 @@ export default function ReservePage() {
     const paddedSeconds = s.toString().padStart(2, "0");
     return `${endHour.toString().padStart(2, "0")}:${endMinute
       .toString()
-      .padStart(2, "0")}:${paddedSeconds}`;
+      .padStart(2, "0")}:00`;
   };
 
-  const timeOptions = Array.from({ length: 20 }, (_, i) => {
-    const hour = 10 + i;
+  const timeOptions = Array.from({ length: 25 }, (_, i) => {
+    const hour = 10 + Math.floor(i / 2);
+    const minute = i % 2 === 0 ? "00" : "30";
     return {
-      value: `${hour.toString().padStart(2, "0")}:00:00`,
-      label: `${hour}:00`,
+      value: `${hour.toString().padStart(2, "0")}:${minute}:00`,
+      label: `${hour}:${minute}`,
     };
   });
 
@@ -223,7 +224,6 @@ export default function ReservePage() {
                   />
                 </div>
                 <Button type="submit" fullWidth disabled={loading}>
-                  <span className="material-symbols-outlined">event_available</span>
                   예약 확정하기
                 </Button>
               </form>
