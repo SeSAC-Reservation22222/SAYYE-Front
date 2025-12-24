@@ -95,6 +95,7 @@ export interface ReservationUpdateRequest {
 export interface ReservationResponse {
   id: number;
   roomName: string;
+  courseName: string;
   userName: string;
   status: ReservationStatus;
   startTime: string; // HH:mm:ss

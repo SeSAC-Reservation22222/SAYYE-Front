@@ -227,6 +227,10 @@ export default function RoomsPage() {
                 <span className="text-base font-semibold">{selectedReservation.roomName}</span>
               </div>
               <div className="flex flex-col">
+                <span className="text-xs text-text-light-secondary dark:text-dark-secondary font-medium">소속 클래스</span>
+                <span className="text-base font-semibold">{selectedReservation.courseName}</span>
+              </div>
+              <div className="flex flex-col">
                 <span className="text-xs text-text-light-secondary dark:text-dark-secondary font-medium">예약자</span>
                 <span className="text-base font-semibold">{selectedReservation.userName}</span>
               </div>
