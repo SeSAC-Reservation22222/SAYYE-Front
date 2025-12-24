@@ -139,6 +139,16 @@ export default function ReservePage() {
             <Card>
               <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                 <div>
+                  <label className="font-bold text-base mb-2 block">예약 날짜</label>
+                  <Input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    min={new Date().toISOString().split("T")[0]}
+                    required
+                  />
+                </div>
+                <div>
                   <label className="font-bold text-base mb-2 block">시작 시간</label>
                   <Select
                     options={timeOptions}
@@ -199,7 +209,7 @@ export default function ReservePage() {
                         minLength={2}
                       />
                       <Input
-                        label="연락처 (뒷 4자리)"
+                        label="식별번호 (숫자 4자리)"
                         placeholder="1234"
                         type="tel"
                         pattern="[0-9]{4}"
@@ -213,16 +223,7 @@ export default function ReservePage() {
                     </>
                   )}
                 </div>
-                <div>
-                  <label className="font-bold text-base mb-2 block">예약 날짜</label>
-                  <Input
-                    type="date"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    min={new Date().toISOString().split("T")[0]}
-                    required
-                  />
-                </div>
+
                 <Button type="submit" fullWidth disabled={loading}>
                   예약 확정하기
                 </Button>

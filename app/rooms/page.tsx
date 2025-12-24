@@ -90,7 +90,6 @@ export default function RoomsPage() {
               href="/rooms/select"
               className="flex items-center justify-center gap-2 min-w-[100px] h-10 px-4 bg-primary text-white text-sm font-bold rounded-lg hover:bg-opacity-90 transition-all"
             >
-              <span className="material-symbols-outlined !text-[18px]">add</span>
               <span className="truncate">새 예약</span>
             </Link>
           </div>
@@ -110,76 +109,91 @@ export default function RoomsPage() {
                 />
               </div>
             </div>
-            <div className="px-2 py-3 overflow-x-auto">
-              <div className="inline-block min-w-full overflow-hidden rounded-xl border border-border-light dark:border-border-dark bg-white dark:bg-background-dark shadow-sm">
-                <div className="relative min-w-[1200px]">
-                  {/* Table Header */}
-                  <div className="flex border-b border-border-light dark:border-border-dark bg-gray-50 dark:bg-white/5">
-                    <div className="sticky left-0 z-20 w-40 h-12 bg-gray-50 dark:bg-white/5 border-r border-border-light dark:border-border-dark" />
-                    <div className="flex-1 flex">
-                      {Array.from({ length: 14 }, (_, i) => (
-                        <div key={i} className="flex-1 h-12 flex items-center justify-center text-xs font-medium text-text-light-secondary dark:text-dark-secondary border-r border-border-light/50 dark:border-border-dark/50 last:border-r-0">
-                          {9 + i}:00
+            <div className="py-3 overflow-x-auto sm:px-2">
+              <div className="min-w-full w-fit rounded-none sm:rounded-xl border-y sm:border border-border-light dark:border-border-dark bg-white dark:bg-background-dark shadow-sm">
+                <div className="relative min-w-fit">
+                  {/* Table Header (Rooms) */}
+                  <div className="flex border-b border-border-light dark:border-border-dark bg-gray-50 dark:bg-white/5 sticky top-0 z-30">
+                    <div className="sticky left-0 z-40 w-16 bg-gray-50 dark:bg-white/5 border-r border-border-light dark:border-border-dark flex-shrink-0" />
+                    <div className="flex flex-1">
+                      {rooms.map((room) => (
+                        <div key={room.id} className="flex-1 min-w-[100px] sm:min-w-[120px] h-12 flex items-center justify-center text-xs sm:text-sm font-bold text-text-light dark:text-text-dark border-r border-border-light/50 dark:border-border-dark/50 last:border-r-0">
+                          {room.roomName}
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* Table Body */}
-                  <div className="relative">
-                    {rooms.map((room) => {
-                      const roomReservations = reservations[room.id] || [];
-                      return (
-                        <div key={room.id} className="group flex border-b border-border-light dark:border-border-dark last:border-b-0">
-                          {/* Room Name Column */}
-                          <div className="sticky left-0 z-20 w-40 h-20 flex items-center px-4 bg-white dark:bg-background-dark group-hover:bg-gray-50 dark:group-hover:bg-white/5 transition-colors border-r border-border-light dark:border-border-dark text-sm font-semibold">
-                            {room.roomName}
-                          </div>
-
-                          {/* Timeline Grid Background */}
-                          <div className="relative flex-1 h-20 flex">
-                            {Array.from({ length: 14 }, (_, i) => (
-                              <div key={i} className="flex-1 border-r border-border-light/30 dark:border-border-dark/30 last:border-r-0" />
-                            ))}
-
-                            {/* Reservation Blocks (Absolute) */}
-                            {(() => {
-                              // 겹치는 예약 중 가장 최신(ID가 큰 것)만 필터링
-                              const filteredReservations = [...roomReservations]
-                                .sort((a, b) => b.id - a.id) // ID 내림차순 (최신순)
-                                .reduce((acc: ReservationResponse[], current) => {
-                                  const isOverlapped = acc.some(existing => {
-                                    return (current.startTime < existing.endTime && current.endTime > existing.startTime);
-                                  });
-                                  if (!isOverlapped) acc.push(current);
-                                  return acc;
-                                }, []);
-
-                              return filteredReservations.map((res) => {
-                                const left = getTimePosition(res.startTime);
-                                const width = getTimeWidth(res.startTime, res.endTime);
-                                return (
-                                  <div
-                                    key={res.id}
-                                    onClick={() => setSelectedReservation(res)}
-                                    className="absolute top-2 bottom-2 bg-primary rounded-lg text-white p-2 flex flex-col justify-center min-w-[30px] shadow-sm z-10 transition-all hover:brightness-110 cursor-pointer"
-                                    style={{
-                                      left: `${left}%`,
-                                      width: `${width}%`,
-                                    }}
-                                  >
-                                    <p className="text-xs font-bold truncate">{res.userName}</p>
-                                    <p className="text-[10px] truncate opacity-90">
-                                      {res.startTime.substring(0, 5)} - {res.endTime.substring(0, 5)}
-                                    </p>
-                                  </div>
-                                );
-                              });
-                            })()}
-                          </div>
+                  {/* Table Body (Time & Content) */}
+                  <div className="flex relative h-[840px]"> {/* 14시간 * 60px = 840px */}
+                    
+                    {/* Time Column (Left Sidebar) */}
+                    <div className="sticky left-0 z-30 w-16 bg-white dark:bg-background-dark border-r border-border-light dark:border-border-dark flex-shrink-0 flex flex-col">
+                      {Array.from({ length: 14 }, (_, i) => (
+                        <div key={i} className="flex-1 border-b border-border-light/30 dark:border-border-dark/30 text-xs text-text-light-secondary dark:text-dark-secondary font-medium flex items-start justify-center pt-2">
+                          {9 + i}:00
                         </div>
-                      );
-                    })}
+                      ))}
+                    </div>
+
+                    {/* Rooms Columns */}
+                    <div className="flex flex-1 relative">
+                      {/* Background Grid Lines (Horizontal) */}
+                      <div className="absolute inset-0 flex flex-col z-0 pointer-events-none">
+                         {Array.from({ length: 14 }, (_, i) => (
+                           <div key={i} className="flex-1 border-b border-border-light/30 dark:border-border-dark/30" />
+                         ))}
+                      </div>
+
+                      {/* Room Columns with Reservations */}
+                      {rooms.map((room) => {
+                        const roomReservations = reservations[room.id] || [];
+                        return (
+                          <div key={room.id} className="flex-1 min-w-[100px] sm:min-w-[120px] relative border-r border-border-light/30 dark:border-border-dark/30 last:border-r-0 z-10 group hover:bg-gray-50/30 dark:hover:bg-white/5 transition-colors">
+                            {(() => {
+                                // 겹치는 예약 중 가장 최신(ID가 큰 것)만 필터링
+                                const filteredReservations = [...roomReservations]
+                                  .sort((a, b) => b.id - a.id) // ID 내림차순 (최신순)
+                                  .reduce((acc: ReservationResponse[], current) => {
+                                    const isOverlapped = acc.some(existing => {
+                                      return (current.startTime < existing.endTime && current.endTime > existing.startTime);
+                                    });
+                                    if (!isOverlapped) acc.push(current);
+                                    return acc;
+                                  }, []);
+
+                                return filteredReservations.map((res) => {
+                                  // 기존 함수 재사용: getTimePosition -> top %, getTimeWidth -> height %
+                                  const top = getTimePosition(res.startTime);
+                                  const height = getTimeWidth(res.startTime, res.endTime);
+                                  
+                                  return (
+                                    <div
+                                      key={res.id}
+                                      onClick={() => setSelectedReservation(res)}
+                                      className="absolute left-1 right-1 bg-primary rounded-lg text-white px-2 shadow-sm z-20 transition-all hover:brightness-110 cursor-pointer hover:z-30 overflow-hidden flex flex-col justify-center"
+                                      style={{
+                                        top: `${top}%`,
+                                        height: `calc(${height}% - 2px)`,
+                                      }}
+                                    >
+                                      {/* 모든 예약에 대해 이름과 시간을 가로 배치(공간 부족 시 줄바꿈) 혹은 한 줄 유지 */}
+                                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full">
+                                        <p className="text-[10px] sm:text-xs font-bold truncate shrink-0 mr-1">
+                                          {res.userName}
+                                        </p>
+                                        <p className="text-[9px] sm:text-[10px] truncate opacity-90 shrink-0">
+                                          {res.startTime.substring(0, 5)} - {res.endTime.substring(0, 5)}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  );
+                                });
+                              })()}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -211,6 +225,10 @@ export default function RoomsPage() {
               <div className="flex flex-col">
                 <span className="text-xs text-text-light-secondary dark:text-dark-secondary font-medium">회의실</span>
                 <span className="text-base font-semibold">{selectedReservation.roomName}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs text-text-light-secondary dark:text-dark-secondary font-medium">소속 클래스</span>
+                <span className="text-base font-semibold">{selectedReservation.courseName}</span>
               </div>
               <div className="flex flex-col">
                 <span className="text-xs text-text-light-secondary dark:text-dark-secondary font-medium">예약자</span>
