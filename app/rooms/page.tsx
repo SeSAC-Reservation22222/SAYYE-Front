@@ -90,7 +90,6 @@ export default function RoomsPage() {
               href="/rooms/select"
               className="flex items-center justify-center gap-2 min-w-[100px] h-10 px-4 bg-primary text-white text-sm font-bold rounded-lg hover:bg-opacity-90 transition-all"
             >
-              <span className="material-symbols-outlined !text-[18px]">add</span>
               <span className="truncate">새 예약</span>
             </Link>
           </div>
