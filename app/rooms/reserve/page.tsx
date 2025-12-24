@@ -209,7 +209,7 @@ export default function ReservePage() {
                         minLength={2}
                       />
                       <Input
-                        label="연락처 (뒷 4자리)"
+                        label="식별번호 (숫자 4자리)"
                         placeholder="1234"
                         type="tel"
                         pattern="[0-9]{4}"
