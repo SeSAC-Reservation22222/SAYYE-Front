@@ -21,8 +21,8 @@ export default function AdminPage() {
   const adminMenus = useMemo(
     () => [
       {
-        title: "사용자 관리",
-        description: "사용자 계정을 추가, 수정 또는 삭제하고 역할을 관리합니다.",
+        title: "관리자 관리",
+        description: "관리자 계정을 추가, 수정 또는 삭제하고 역할을 관리합니다.",
         icon: "group",
         href: "/admin/users",
         active: true,
