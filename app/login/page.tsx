@@ -63,6 +63,13 @@ export default function LoginPage() {
           <Button type="submit" fullWidth disabled={loading}>
             로그인
           </Button>
+          
+          {/* 홈으로 돌아가기 링크 */}
+          <div className="text-center mt-2">
+            <Link href="/" className="text-sm text-gray-500 dark:text-gray-400 hover:text-primary transition-colors inline-flex items-center gap-1">
+              홈으로 돌아가기
+            </Link>
+          </div>
         </form>
       </Card>
     </div>

@@ -75,7 +75,7 @@ export default function AdminUsersPage() {
       <div className="relative flex min-h-screen w-full flex-col">
         <Header showLogout />
         <main className="flex-1 w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-4xl font-black tracking-tight mb-8">사용자 관리</h1>
+          <h1 className="text-4xl font-black tracking-tight mb-8">관리자 관리</h1>
 
           <Card className="mb-8">
             <div className="flex flex-col gap-4">
@@ -121,7 +121,9 @@ export default function AdminUsersPage() {
           </Card>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {admins.map((admin) => (
+            {admins
+              .filter((admin) => admin.role !== "MASTER")
+              .map((admin) => (
               <Card key={admin.id}>
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center gap-3">

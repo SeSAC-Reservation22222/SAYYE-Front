@@ -158,13 +158,13 @@ export default function ReservePage() {
                 </div>
                 <div>
                   <p className="font-bold text-base mb-2">사용 시간 (최대 2시간)</p>
-                  <div className="flex gap-2 mt-2 flex-wrap">
+                  <div className="flex gap-2 mt-2">
                     {durationOptions.map((option) => (
                       <button
                         key={option.value}
                         type="button"
                         onClick={() => setDuration(Number(option.value))}
-                        className={`h-10 px-4 rounded-lg text-sm font-medium transition-colors ${duration === Number(option.value)
+                        className={`flex-1 h-10 px-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${duration === Number(option.value)
                           ? "bg-primary text-white"
                           : "bg-primary/20 hover:bg-primary/30"
                           }`}

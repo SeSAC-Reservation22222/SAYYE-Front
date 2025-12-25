@@ -69,15 +69,29 @@ export default function HomePage() {
                 <p className="text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary">
                   Say Ye 서비스를 이용해보셨나요? 소중한 의견을 들려주세요!
                 </p>
-                <a
-                  className="group flex items-center gap-2 rounded-full bg-primary/10 px-6 py-2.5 text-sm font-bold text-primary transition-all hover:bg-primary/20 hover:scale-105 active:scale-95"
-                  href="https://forms.gle/pWtC9qYhgL9EnJks7"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span className="text-lg">📋</span>
-                  <span>피드백 설문 참여하기</span>
-                </a>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  {/* 사용자 가이드 버튼 */}
+                  <a
+                    className="group flex items-center gap-2 rounded-full bg-primary/10 px-6 py-2.5 text-sm font-bold text-primary transition-all hover:bg-primary/20 hover:scale-105 active:scale-95"
+                    href="#" // TODO: 노션 링크로 교체 필요
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <span className="text-lg">📖</span>
+                    <span>사용자 가이드 보기</span>
+                  </a>
+                  
+                  {/* 피드백 설문 버튼 */}
+                  <a
+                    className="group flex items-center gap-2 rounded-full bg-primary/10 px-6 py-2.5 text-sm font-bold text-primary transition-all hover:bg-primary/20 hover:scale-105 active:scale-95"
+                    href="https://forms.gle/pWtC9qYhgL9EnJks7"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <span className="text-lg">📋</span>
+                    <span>피드백 설문 참여하기</span>
+                  </a>
+                </div>
               </div>
               <p className="text-xs font-normal text-text-light-secondary dark:text-text-dark-secondary">
                 © 2025 Say Ye. All rights reserved.

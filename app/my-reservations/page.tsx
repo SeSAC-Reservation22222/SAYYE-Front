@@ -16,41 +16,20 @@ export default function MyReservationsPage() {
     phoneLastNumber: "",
   });
   const [reservations, setReservations] = useState<ReservationResponse[]>([]);
-  const [rooms, setRooms] = useState<RoomResponse[]>([]);
-  const [selectedRoom, setSelectedRoom] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
-  const [roomsLoading, setRoomsLoading] = useState(true);
   const [searched, setSearched] = useState(false);
 
-  useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        const data = await roomApi.getRooms();
-        setRooms(data);
-        if (data.length > 0) {
-          setSelectedRoom(data[0].id);
-        }
-      } catch (error) {
-        console.error("회의실 목록 조회 실패:", error);
-      } finally {
-        setRoomsLoading(false);
-      }
-    };
 
-    fetchRooms();
-  }, []);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedRoom) {
-      alert("회의실을 선택해주세요.");
-      return;
-    }
     setLoading(true);
     setSearched(false);
 
     try {
-      const data = await reservationApi.getReservations(selectedRoom, searchData);
+      // roomId를 1로 고정하거나, API를 수정하여 roomId 없이 조회하도록 변경 필요
+      // 임시로 roomId=1 사용
+      const data = await reservationApi.getReservations(1, searchData);
       setReservations(data);
       setSearched(true);
     } catch (error: any) {
@@ -79,18 +58,7 @@ export default function MyReservationsPage() {
         <h1 className="text-4xl font-black tracking-tight mb-8">내 예약 조회</h1>
         <Card className="mb-8">
           <form onSubmit={handleSearch} className="flex flex-col gap-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Select
-                label="회의실"
-                value={selectedRoom?.toString() ?? ""}
-                onChange={(e) => setSelectedRoom(Number(e.target.value))}
-                options={rooms.map((room) => ({
-                  value: room.id.toString(),
-                  label: room.roomName,
-                }))}
-                required
-                disabled={roomsLoading || rooms.length === 0}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 label="이름"
                 placeholder="이름을 입력하세요"
@@ -102,7 +70,7 @@ export default function MyReservationsPage() {
                 minLength={2}
               />
               <Input
-                label="연락처 뒷 4자리"
+                label="식별번호 (숫자 4자리)"
                 placeholder="1234"
                 type="tel"
                 pattern="[0-9]{4}"
