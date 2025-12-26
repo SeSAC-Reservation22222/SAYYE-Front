@@ -96,7 +96,26 @@ export default function ReservePage() {
       alert("예약이 완료되었습니다!");
       router.push("/rooms");
     } catch (error: any) {
-      alert(error.response?.data?.message || "예약에 실패했습니다.");
+      // 백엔드에서 내려주는 에러 메시지 추출
+      let errorMessage = "예약에 실패했습니다.";
+
+      if (error.response?.data) {
+        const errorData = error.response.data;
+
+        // message 필드가 있는 경우
+        if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+        // futureTime 등의 필드가 있는 경우 (validation 에러)
+        else if (typeof errorData === 'object') {
+          const firstErrorKey = Object.keys(errorData)[0];
+          if (firstErrorKey && errorData[firstErrorKey]) {
+            errorMessage = errorData[firstErrorKey];
+          }
+        }
+      }
+
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
