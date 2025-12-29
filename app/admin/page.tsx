@@ -35,6 +35,13 @@ export default function AdminPage() {
         active: true,
       },
       {
+        title: "클래스 관리",
+        description: "강의(클래스)를 생성, 수정 또는 삭제하고 관리합니다.",
+        icon: "class",
+        href: "/admin/classes",
+        active: true,
+      },
+      {
         title: "예약 현황 관리",
         description: "전체 회의실의 예약 현황을 확인하고 필요시 수정 또는 취소합니다.",
         icon: "event_available",

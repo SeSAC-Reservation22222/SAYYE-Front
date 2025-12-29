@@ -3,7 +3,10 @@ import type { CourseRequest, CourseResponse } from "@/types";
 
 export const courseApi = {
   createCourse: async (data: CourseRequest): Promise<CourseResponse> => {
+    // 디버깅: 전송할 데이터 확인
+    console.log("Course API - 전송할 데이터:", JSON.stringify(data, null, 2));
     const response = await apiClient.post<CourseResponse>("/classes", data);
+    console.log("Course API - 응답 데이터:", response.data);
     return response.data;
   },
 
