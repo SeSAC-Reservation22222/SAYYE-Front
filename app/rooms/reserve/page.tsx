@@ -19,10 +19,40 @@ export default function ReservePage() {
   const [rooms, setRooms] = useState<RoomResponse[]>([]);
   const [courses, setCourses] = useState<CourseResponse[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<number | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
-  );
-  const [startTime, setStartTime] = useState<string>("13:00:00");
+  // 현재 시간을 30분 단위로 반올림하는 함수
+  const getRoundedCurrentTime = (): string => {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    
+    // 30분 단위로 반올림
+    let roundedMinutes = minutes < 30 ? 0 : 30;
+    let roundedHours = hours;
+    
+    // 30분 이상이면 다음 시간으로 넘어가지만, 30분으로 설정
+    // (예: 14:35 → 14:30, 14:40 → 15:00이 아니라 14:30)
+    // 사용자 요구사항에 따라 14:09 → 14:00, 17:51 → 17:30
+    if (minutes >= 30) {
+      roundedMinutes = 30;
+    } else {
+      roundedMinutes = 0;
+    }
+    
+    // 시간 범위 제한 (10:00 ~ 22:00)
+    if (roundedHours < 10) {
+      roundedHours = 10;
+      roundedMinutes = 0;
+    } else if (roundedHours >= 22) {
+      roundedHours = 22;
+      roundedMinutes = 0;
+    }
+    
+    return `${roundedHours.toString().padStart(2, "0")}:${roundedMinutes.toString().padStart(2, "0")}:00`;
+  };
+
+  const today = new Date().toISOString().split("T")[0];
+  const [selectedDate, setSelectedDate] = useState<string>(today);
+  const [startTime, setStartTime] = useState<string>(getRoundedCurrentTime());
   const [duration, setDuration] = useState<number>(2);
   const [formData, setFormData] = useState({
     courseId: "",
@@ -162,7 +192,16 @@ export default function ReservePage() {
                   <Input
                     type="date"
                     value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
+                    onChange={(e) => {
+                      const newDate = e.target.value;
+                      setSelectedDate(newDate);
+                      // 오늘 날짜로 변경되면 현재 시간으로 설정, 미래 날짜면 기본값(10:00)으로 설정
+                      if (newDate === today) {
+                        setStartTime(getRoundedCurrentTime());
+                      } else {
+                        setStartTime("10:00:00");
+                      }
+                    }}
                     min={new Date().toISOString().split("T")[0]}
                     required
                   />
