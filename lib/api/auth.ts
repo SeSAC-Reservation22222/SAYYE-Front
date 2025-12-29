@@ -28,7 +28,6 @@ export const authApi = {
   },
 
   logout: async (): Promise<void> => {
-    await apiClient.post("/auth/logout");
     if (typeof window !== "undefined") {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
