@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/components/common/Header";
 import Button from "@/components/common/Button";
@@ -13,7 +13,7 @@ import { reservationApi } from "@/lib/api/reservation";
 import { getDecodedToken, isAdmin } from "@/lib/utils/jwt";
 import type { RoomResponse, CourseResponse, ReservationRequest, AdminReservationRequest } from "@/types";
 
-export default function ReservePage() {
+function ReserveContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [rooms, setRooms] = useState<RoomResponse[]>([]);
@@ -328,3 +328,19 @@ export default function ReservePage() {
   );
 }
 
+export default function ReservePage() {
+  return (
+    <Suspense fallback={
+      <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        <Header />
+        <main className="flex-1 w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center justify-center h-64">
+            <p>로딩 중...</p>
+          </div>
+        </main>
+      </div>
+    }>
+      <ReserveContent />
+    </Suspense>
+  );
+}
