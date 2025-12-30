@@ -30,3 +30,4 @@ export const getWeekday = (dateString: string): string => {
   return weekdays[date.getDay()];
 };
 
+
