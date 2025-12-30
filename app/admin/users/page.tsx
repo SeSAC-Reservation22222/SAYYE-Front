@@ -47,7 +47,47 @@ export default function AdminUsersPage() {
       setNewAdmin({ userId: "", password: "", name: "", email: "" });
       fetchAdmins();
     } catch (error: any) {
-      alert(error.response?.data?.message || "관리자 추가에 실패했습니다.");
+      console.error("Signup Failed - Full Error Object:", error);
+      console.error("Signup Failed - Response Data:", error.response?.data);
+
+      const errorData = error.response?.data;
+      let errorMessage = "관리자 추가에 실패했습니다.";
+
+      if (errorData) {
+
+        if (Array.isArray(errorData.errors) && errorData.errors.length > 0) {
+          const firstError = errorData.errors[0];
+          errorMessage = firstError.defaultMessage || firstError.message || JSON.stringify(firstError);
+        }
+        else if (typeof errorData === "string") {
+          errorMessage = errorData;
+        }
+        else if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+        // 4. Flat Map of Field Errors (e.g., { email: "Invalid...", password: "..." })
+        // Check if it's an object and take the first string value found
+        else if (typeof errorData === "object" && Object.keys(errorData).length > 0) {
+          // 우선순위에 따라 에러 메시지 확인
+          const priorityFields = ["userId", "password", "name", "email"];
+          for (const field of priorityFields) {
+            if (errorData[field]) {
+              errorMessage = errorData[field];
+              break;
+            }
+          }
+
+          // 우선순위 필드가 없으면 첫 번째 에러 메시지 사용
+          if (errorMessage === "관리자 추가에 실패했습니다.") {
+            const firstValue = Object.values(errorData)[0];
+            if (typeof firstValue === "string") {
+              errorMessage = firstValue;
+            }
+          }
+        }
+      }
+
+      alert(errorMessage);
     }
   };
 
@@ -124,35 +164,35 @@ export default function AdminUsersPage() {
             {admins
               .filter((admin) => admin.role !== "MASTER")
               .map((admin) => (
-              <Card key={admin.id}>
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex-shrink-0 size-12 rounded-full overflow-hidden">
-                      <Image
-                        src="/logo.png"
-                        alt={`${admin.name} 프로필`}
-                        width={48}
-                        height={48}
-                        className="h-full w-full object-cover"
-                      />
+                <Card key={admin.id}>
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-shrink-0 size-12 rounded-full overflow-hidden">
+                        <Image
+                          src="/logo.png"
+                          alt={`${admin.name} 프로필`}
+                          width={48}
+                          height={48}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold">{admin.name}</h3>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold">{admin.name}</h3>
+                    <div className="flex flex-col gap-1 text-sm text-text-light-secondary dark:text-text-dark-secondary">
+                      <p>ID: {admin.userId}</p>
+                      <p>이메일: {admin.email}</p>
+                      <p>역할: {admin.role}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="secondary" onClick={() => handleDelete(admin.id)} size="sm">
+                        삭제
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex flex-col gap-1 text-sm text-text-light-secondary dark:text-text-dark-secondary">
-                    <p>ID: {admin.userId}</p>
-                    <p>이메일: {admin.email}</p>
-                    <p>역할: {admin.role}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="secondary" onClick={() => handleDelete(admin.id)} size="sm">
-                      삭제
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            ))}
+                </Card>
+              ))}
           </div>
         </main>
       </div>
