@@ -3,9 +3,14 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Header from "@/components/common/Header";
+import Card from "@/components/common/Card";
+import { noticeApi } from "@/lib/api/notice";
+import type { NoticeResponse } from "@/types";
 
 export default function HomePage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [notices, setNotices] = useState<NoticeResponse[]>([]);
+  const [loadingNotices, setLoadingNotices] = useState(true);
 
   useEffect(() => {
     const checkAuth = () => {
@@ -21,12 +26,72 @@ export default function HomePage() {
     }
   }, []);
 
+  useEffect(() => {
+    const fetchNotices = async () => {
+      try {
+        const data = await noticeApi.getNotices();
+        // 최신 공지사항 최대 5개만 표시
+        setNotices(data.slice(0, 5));
+      } catch (error) {
+        console.error("공지사항 조회 실패:", error);
+      } finally {
+        setLoadingNotices(false);
+      }
+    };
+
+    fetchNotices();
+  }, []);
+
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ko-KR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
   return (
     <div className="relative flex min-h-screen w-full flex-col">
       <Header variant="simple" />
       <div className="layout-container flex h-full grow flex-col">
         <div className="flex flex-1 justify-center px-4 py-5 sm:px-10 md:px-20 lg:px-40">
           <div className="layout-content-container flex w-full max-w-[960px] flex-1 flex-col">
+            {/* 공지사항 섹션 */}
+            {!loadingNotices && notices.length > 0 && (
+              <section className="mb-8 w-full">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-2xl font-black text-text-light-primary dark:text-text-dark-primary">
+                    공지사항
+                  </h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {notices.map((notice) => (
+                    <Card
+                      key={notice.id}
+                      className="hover:shadow-lg transition-shadow cursor-pointer"
+                      onClick={() => {
+                        // 공지사항 상세 보기 (모달이나 별도 페이지로 확장 가능)
+                        alert(`${notice.title}\n\n${notice.content}`);
+                      }}
+                    >
+                      <div className="flex flex-col gap-2">
+                        <h3 className="text-lg font-bold text-text-light-primary dark:text-text-dark-primary line-clamp-1">
+                          {notice.title}
+                        </h3>
+                        <p className="text-sm text-text-light-secondary dark:text-text-dark-secondary line-clamp-2">
+                          {notice.content}
+                        </p>
+                        <p className="text-xs text-text-light-secondary dark:text-text-dark-secondary mt-2">
+                          {formatDate(notice.createdAt)}
+                        </p>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </section>
+            )}
+
             <main className="flex flex-1 flex-col items-center justify-center text-center">
               <div className="flex w-full flex-wrap justify-center gap-3 p-4">
                 <div className="flex min-w-72 flex-col gap-3">

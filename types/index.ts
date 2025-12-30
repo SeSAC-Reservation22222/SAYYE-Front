@@ -138,6 +138,20 @@ export interface PaginatedResponse<T> {
   empty: boolean;
 }
 
+// 공지사항 관련 타입
+export interface NoticeRequest {
+  title: string;
+  content: string;
+}
+
+export interface NoticeResponse {
+  id: number;
+  title: string;
+  content: string;
+  createdAt: string; // ISO 8601 형식 (YYYY-MM-DDTHH:mm:ss)
+  updatedAt: string; // ISO 8601 형식 (YYYY-MM-DDTHH:mm:ss)
+}
+
 // 에러 응답 타입
 export interface ErrorResponse {
   status: number;
