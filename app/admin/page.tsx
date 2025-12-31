@@ -49,11 +49,11 @@ export default function AdminPage() {
         active: true,
       },
       {
-        title: "시스템 설정",
-        description: "애플리케이션의 전반적인 설정을 변경합니다.",
-        icon: "settings",
-        href: "/admin/settings",
-        active: false,
+        title: "공지사항 관리",
+        description: "사용자에게 보여줄 공지사항을 작성하고 관리합니다.",
+        icon: "campaign",
+        href: "/admin/notices",
+        active: true,
       },
       {
         title: "통계 및 보고서",
@@ -63,12 +63,14 @@ export default function AdminPage() {
         active: false,
       },
       {
-        title: "공지사항 관리",
-        description: "사용자에게 보여줄 공지사항을 작성하고 관리합니다.",
-        icon: "campaign",
-        href: "/admin/notices",
+        title: "시스템 설정",
+        description: "애플리케이션의 전반적인 설정을 변경합니다.",
+        icon: "settings",
+        href: "/admin/settings",
         active: false,
       },
+      
+      
     ],
     []
   );

@@ -75,12 +75,14 @@ export default function AdminReservationsPage() {
     return filtered;
   }, [rawReservations, filters, rooms]);
 
-  const handleDelete = async (reservationId: number) => {
-    if (!confirm("정말 삭제하시겠습니까?")) return;
+  const handleCancel = async (reservationId: number) => {
+    if (!confirm("정말 예약을 취소하시겠습니까?")) return;
     try {
-      alert("관리자용 삭제 기능은 현재 API 연동이 필요합니다.");
+      await reservationApi.cancelReservation(reservationId);
+      alert("예약이 취소되었습니다.");
+      fetchReservations();
     } catch (error: any) {
-      alert(error.response?.data?.message || "삭제에 실패했습니다.");
+      alert(error.response?.data?.message || "취소에 실패했습니다.");
     }
   };
 
@@ -164,13 +166,13 @@ export default function AdminReservationsPage() {
                         <p className="text-sm font-bold truncate">{reservation.roomName}</p>
                       </div>
                       <div className="min-w-[150px]">
-                        <p className="text-[10px] text-gray-400 font-medium mb-1">예약자 (강의)</p>
+                        <p className="text-[10px] text-gray-400 font-medium mb-1">예약자 (클래스)</p>
                         <p className="text-sm font-bold truncate">
                           {reservation.userName} <span className="text-xs font-normal text-gray-500">({reservation.courseName})</span>
                         </p>
                       </div>
                       <div className="min-w-[100px]">
-                        <p className="text-[10px] text-gray-400 font-medium mb-1">연락처</p>
+                        <p className="text-[10px] text-gray-400 font-medium mb-1">식별번호</p>
                         <p className="text-sm font-bold">
                           {reservation.userName === 'master' || !reservation.phoneLastNumber ? '-' : reservation.phoneLastNumber}
                         </p>
@@ -186,14 +188,16 @@ export default function AdminReservationsPage() {
                       }`}>
                         {reservation.status}
                       </span>
-                      <Button
-                        variant="secondary"
-                        onClick={() => handleDelete(reservation.id)}
-                        size="sm"
-                        className="text-red-500 hover:text-red-600 shrink-0"
-                      >
-                        삭제
-                      </Button>
+                      {reservation.status === '예약' && (
+                        <Button
+                          variant="secondary"
+                          onClick={() => handleCancel(reservation.id)}
+                          size="sm"
+                          className="text-red-500 hover:text-red-600 shrink-0"
+                        >
+                          취소
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </Card>

@@ -22,6 +22,11 @@ export const noticeApi = {
     return response.data;
   },
 
+  updateNoticeStatus: async (noticeId: number): Promise<NoticeResponse> => {
+    const response = await apiClient.put<NoticeResponse>(`/notices/${noticeId}/toggle`);
+    return response.data;
+  },
+
   deleteNotice: async (noticeId: number): Promise<void> => {
     await apiClient.delete(`/notices/${noticeId}`);
   },

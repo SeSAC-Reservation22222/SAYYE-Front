@@ -92,6 +92,11 @@ export interface ReservationUpdateRequest {
   reservationDate: string;
 }
 
+export interface CancelReservationRequest {
+  // 백엔드 CancelReservationReqDto 구조에 맞춰 필드 추가 필요
+  // 현재는 정보가 없어 빈 객체로 정의
+}
+
 export interface ReservationResponse {
   id: number;
   roomName: string;
@@ -142,12 +147,14 @@ export interface PaginatedResponse<T> {
 export interface NoticeRequest {
   title: string;
   content: string;
+  status: boolean;
 }
 
 export interface NoticeResponse {
   id: number;
   title: string;
   content: string;
+  status: boolean;
   createdAt: string; // ISO 8601 형식 (YYYY-MM-DDTHH:mm:ss)
   updatedAt: string; // ISO 8601 형식 (YYYY-MM-DDTHH:mm:ss)
 }

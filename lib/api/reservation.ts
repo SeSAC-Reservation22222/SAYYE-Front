@@ -7,6 +7,7 @@ import type {
   ReservationResponse,
   ReservationAdminResponse,
   PaginatedResponse,
+  CancelReservationRequest,
 } from "@/types";
 
 export const reservationApi = {
@@ -72,6 +73,14 @@ export const reservationApi = {
     reservationId: number,
     data: ReservationSearchRequest
   ): Promise<void> => {
+    await apiClient.delete(`/reservations/${reservationId}`, { data });
+  },
+
+  cancelReservation: async (
+    reservationId: number,
+    data: CancelReservationRequest = {}
+  ): Promise<void> => {
+    // Axios delete 메서드의 두 번째 인자는 config 객체이며, body는 data 프로퍼티에 할당해야 함
     await apiClient.delete(`/reservations/${reservationId}`, { data });
   },
 
