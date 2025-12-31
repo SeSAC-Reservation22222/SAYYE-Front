@@ -67,7 +67,7 @@ export default function AdminPage() {
         description: "사용자에게 보여줄 공지사항을 작성하고 관리합니다.",
         icon: "campaign",
         href: "/admin/notices",
-        active: false,
+        active: true,
       },
     ],
     []
