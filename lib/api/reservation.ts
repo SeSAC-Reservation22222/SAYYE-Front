@@ -77,16 +77,15 @@ export const reservationApi = {
   },
 
   cancelReservation: async (
-    reservationId: number,
-    data: CancelReservationRequest = {}
+    reservationId: number
   ): Promise<void> => {
     // Axios delete 메서드의 두 번째 인자는 config 객체이며, body는 data 프로퍼티에 할당해야 함
-    await apiClient.delete(`/reservations/${reservationId}`, { data });
+    await apiClient.delete(`/admins/reservations/${reservationId}`);
   },
 
   getAdminReservations: async (page: number = 1): Promise<PaginatedResponse<ReservationAdminResponse>> => {
     const response = await apiClient.get<PaginatedResponse<ReservationAdminResponse>>(
-      `/reservations?page=${page}`
+      `/admins/reservations?page=${page}`
     );
     return response.data;
   },
