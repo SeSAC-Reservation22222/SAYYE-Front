@@ -162,7 +162,16 @@ function ReserveContent() {
       .padStart(2, "0")}:00`;
   };
 
-  const timeOptions = Array.from({ length: 25 }, (_, i) => {
+  const isDurationAvailable = (start: string, durationVal: number) => {
+    const [h, m] = start.split(":").map(Number);
+    const startMinutes = h * 60 + m;
+    const durationMinutes = durationVal * 60;
+    const endMinutes = startMinutes + durationMinutes;
+    // 22:00 = 1320 minutes
+    return endMinutes <= 1320;
+  };
+
+  const timeOptions = Array.from({ length: 24 }, (_, i) => {
     const hour = 10 + Math.floor(i / 2);
     const minute = i % 2 === 0 ? "00" : "30";
     return {
@@ -177,6 +186,28 @@ function ReserveContent() {
     { value: "1.5", label: "1시간 30분" },
     { value: "2", label: "2시간" },
   ];
+
+  useEffect(() => {
+    // startTime 변경 시 duration 유효성 체크 및 자동 조정
+    const [h, m] = startTime.split(":").map(Number);
+    const startMinutes = h * 60 + m;
+    const currentEndMinutes = startMinutes + duration * 60;
+    const closeMinutes = 1320; // 22:00
+
+    if (currentEndMinutes > closeMinutes) {
+      const maxDuration = (closeMinutes - startMinutes) / 60;
+      const validOptions = durationOptions
+        .map((o) => Number(o.value))
+        .filter((v) => v <= maxDuration);
+
+      if (validOptions.length > 0) {
+        setDuration(Math.max(...validOptions));
+      } else {
+        // 예약 가능한 시간이 없는 경우 (예: 22:00 시작) 최소 단위로 설정하되 선택 불가 상태가 됨
+        setDuration(0.5);
+      }
+    }
+  }, [startTime]);
 
   return (
     <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
@@ -217,19 +248,28 @@ function ReserveContent() {
                 <div>
                   <p className="font-bold text-base mb-2">사용 시간 (최대 2시간)</p>
                   <div className="flex gap-2 mt-2">
-                    {durationOptions.map((option) => (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => setDuration(Number(option.value))}
-                        className={`flex-1 h-10 px-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${duration === Number(option.value)
-                          ? "bg-primary text-white"
-                          : "bg-primary/20 hover:bg-primary/30"
+                    {durationOptions.map((option) => {
+                      const isAvailable = isDurationAvailable(startTime, Number(option.value));
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          disabled={!isAvailable}
+                          onClick={() => setDuration(Number(option.value))}
+                          className={`flex-1 h-10 px-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+                            duration === Number(option.value)
+                              ? isAvailable 
+                                ? "bg-primary text-white"
+                                : "bg-primary/50 text-white/50 cursor-not-allowed" // 선택되어 있지만불가능한 경우
+                              : isAvailable
+                                ? "bg-primary/20 hover:bg-primary/30"
+                                : "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600 border border-gray-200 dark:border-gray-700"
                           }`}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
+                        >
+                          {option.label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
                 <div className="flex flex-col gap-4">

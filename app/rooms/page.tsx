@@ -213,12 +213,6 @@ export default function RoomsPage() {
           <div className="bg-white dark:bg-background-dark w-full max-w-sm rounded-2xl shadow-2xl p-6 flex flex-col gap-4 animate-in fade-in zoom-in duration-200" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-start">
               <h3 className="text-xl font-bold">예약 상세 정보</h3>
-              <button 
-                onClick={() => setSelectedReservation(null)}
-                className="p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors"
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
             </div>
             
             <div className="flex flex-col gap-3 mt-2">
