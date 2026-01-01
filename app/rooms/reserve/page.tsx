@@ -196,19 +196,36 @@ function ReserveContent() {
     const closeMinutes = 1320; // 22:00
 
     if (currentEndMinutes > closeMinutes) {
-      const maxDuration = (closeMinutes - startMinutes) / 60;
-      const validOptions = durationOptions
-        .map((o) => Number(o.value))
-        .filter((v) => v <= maxDuration);
-
-      if (validOptions.length > 0) {
-        setDuration(Math.max(...validOptions));
-      } else {
-        // 예약 가능한 시간이 없는 경우 (예: 22:00 시작) 최소 단위로 설정하되 선택 불가 상태가 됨
-        setDuration(0.5);
-      }
+      let maxDuration = (closeMinutes - startMinutes) / 60;
+      if (maxDuration < 0.5) maxDuration = 0.5;
+      setDuration(maxDuration);
     }
   }, [startTime]);
+
+  const adminDurationOptions = (() => {
+    const [h, m] = startTime.split(":").map(Number);
+    const startMinutes = h * 60 + m;
+    const closeMinutes = 1320; // 22:00
+    const opts = [];
+
+    for (let d = 0.5; startMinutes + d * 60 <= closeMinutes; d += 0.5) {
+      const endMinutes = startMinutes + d * 60;
+      const endH = Math.floor(endMinutes / 60);
+      const endM = endMinutes % 60;
+      const timeLabel = `${endH.toString().padStart(2, "0")}:${endM.toString().padStart(2, "0")}`;
+
+      let durLabel = "";
+      if (d < 1) durLabel = "30분";
+      else if (Number.isInteger(d)) durLabel = `${d}시간`;
+      else durLabel = `${Math.floor(d)}시간 30분`;
+
+      opts.push({
+        value: d.toString(),
+        label: `${timeLabel} (${durLabel})`,
+      });
+    }
+    return opts.length > 0 ? opts : [{ value: "0.5", label: "선택 불가" }];
+  })();
 
   return (
     <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
@@ -234,7 +251,14 @@ function ReserveContent() {
                         setStartTime("10:00:00");
                       }
                     }}
-                    min={new Date().toISOString().split("T")[0]}
+                    min={today}
+                    max={
+                      isAdminUser
+                        ? undefined
+                        : new Date(new Date().setDate(new Date().getDate() + 1))
+                            .toISOString()
+                            .split("T")[0]
+                    }
                     required
                   />
                 </div>
@@ -247,31 +271,41 @@ function ReserveContent() {
                   />
                 </div>
                 <div>
-                  <p className="font-bold text-base mb-2">사용 시간 (최대 2시간)</p>
-                  <div className="flex gap-2 mt-2">
-                    {durationOptions.map((option) => {
-                      const isAvailable = isDurationAvailable(startTime, Number(option.value));
-                      return (
-                        <button
-                          key={option.value}
-                          type="button"
-                          disabled={!isAvailable}
-                          onClick={() => setDuration(Number(option.value))}
-                          className={`flex-1 h-10 px-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
-                            duration === Number(option.value)
-                              ? isAvailable 
-                                ? "bg-primary text-white"
-                                : "bg-primary/50 text-white/50 cursor-not-allowed" // 선택되어 있지만불가능한 경우
-                              : isAvailable
-                                ? "bg-primary/20 hover:bg-primary/30"
-                                : "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600 border border-gray-200 dark:border-gray-700"
-                          }`}
-                        >
-                          {option.label}
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <label className="font-bold text-base mb-2 block">
+                    {isAdminUser ? "종료 시간 (22:00까지)" : "사용 시간 (최대 2시간)"}
+                  </label>
+                  {isAdminUser ? (
+                    <Select
+                      options={adminDurationOptions}
+                      value={duration.toString()}
+                      onChange={(e) => setDuration(Number(e.target.value))}
+                    />
+                  ) : (
+                    <div className="flex gap-2 mt-2">
+                      {durationOptions.map((option) => {
+                        const isAvailable = isDurationAvailable(startTime, Number(option.value));
+                        return (
+                          <button
+                            key={option.value}
+                            type="button"
+                            disabled={!isAvailable}
+                            onClick={() => setDuration(Number(option.value))}
+                            className={`flex-1 h-10 px-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+                              duration === Number(option.value)
+                                ? isAvailable 
+                                  ? "bg-primary text-white"
+                                  : "bg-primary/50 text-white/50 cursor-not-allowed" // 선택되어 있지만불가능한 경우
+                                : isAvailable
+                                  ? "bg-primary/20 hover:bg-primary/30"
+                                  : "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600 border border-gray-200 dark:border-gray-700"
+                            }`}
+                          >
+                            {option.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
                 <div className="flex flex-col gap-4">
                   <h3 className="text-lg font-bold">예약자 정보</h3>

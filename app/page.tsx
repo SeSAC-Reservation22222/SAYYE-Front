@@ -73,7 +73,7 @@ export default function HomePage() {
                   {/* 사용자 가이드 버튼 */}
                   <a
                     className="group flex items-center gap-2 rounded-full bg-primary/10 px-6 py-2.5 text-sm font-bold text-primary transition-all hover:bg-primary/20 hover:scale-105 active:scale-95"
-                    href="#" // TODO: 노션 링크로 교체 필요
+                    href="https://ringed-room-6d9.notion.site/2dbff06ad20f806e93f2dd4a6ed8b196?source=copy_link"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
