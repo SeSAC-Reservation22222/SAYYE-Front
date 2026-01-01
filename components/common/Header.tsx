@@ -155,17 +155,10 @@ export default function Header({
             {/* 공지사항 버튼 */}
             <button
               onClick={() => setShowNoticeModal(true)}
-              className="relative flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 hover:bg-primary/30 transition-colors dark:bg-primary/30 dark:hover:bg-primary/40"
+              className="flex h-10 min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-primary/20 px-4 text-sm font-bold text-text-light-primary transition-colors hover:bg-primary/30 dark:bg-primary/30 dark:text-text-dark-primary dark:hover:bg-primary/40"
               title="공지사항"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-text-light-primary dark:text-text-dark-primary">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
-              </svg>
-              {noticeCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white shadow-lg">
-                  {noticeCount > 9 ? "9+" : noticeCount}
-                </span>
-              )}
+              공지사항
             </button>
           </div>
         )}
