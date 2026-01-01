@@ -101,7 +101,7 @@ export default function Header({
             >
               <Image
                 src="/logo.png"
-                alt="SeSACMeet 로고"
+                alt="SeSAC Book 로고"
                 width={variant === "simple" ? 24 : 32}
                 height={variant === "simple" ? 24 : 32}
                 className={`${variant === "simple" ? "h-6 w-6" : "h-8 w-8"
@@ -114,7 +114,7 @@ export default function Header({
                     : "text-xl font-bold"
                 }
               >
-                SeSAC Meet
+                SeSAC Book
               </h2>
             </Link>
           {variant === "default" && showNav && (
