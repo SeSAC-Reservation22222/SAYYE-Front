@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Header from "@/components/common/Header";
 import Card from "@/components/common/Card";
 import Button from "@/components/common/Button";
@@ -12,6 +13,14 @@ export default function RoomSelectPage() {
   const router = useRouter();
   const [rooms, setRooms] = useState<RoomResponse[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // 회의실 location에 따라 이미지 경로를 반환하는 함수
+  const getRoomImagePath = (location: number | null): string => {
+    if (location === 1) return "/room-image/1F-room.jpeg";
+    if (location === 2) return "/room-image/2F-room.jpeg";
+    // 기본 이미지 (location이 없거나 다른 경우)
+    return "/room-image/1F-room.jpeg";
+  };
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -68,7 +77,16 @@ export default function RoomSelectPage() {
                   className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
                   onClick={() => handleSelect(room.id)}
                 >
-                  <div className="h-52 w-full rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-emerald-100 dark:from-primary/30 dark:via-primary/20 dark:to-emerald-200/30 mb-4" />
+                  {/* 이미지 영역 - 연두색 박스 대신 이미지 표시 */}
+                  <div className="h-52 w-full relative rounded-xl overflow-hidden mb-4">
+                    <Image
+                      src={getRoomImagePath(room.location)}
+                      alt={room.roomName}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                  </div>
                   <div className="flex flex-col gap-2">
                     <div>
                       <h2 className="text-xl font-bold">{room.roomName}</h2>
