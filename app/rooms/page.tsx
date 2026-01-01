@@ -58,9 +58,9 @@ export default function RoomsPage() {
 
   const getTimePosition = (time: string) => {
     const [hours, minutes] = time.split(":").map(Number);
-    // 9시부터 23시까지 총 14시간 기준 (28개 슬롯)
-    const totalMinutesFromStart = (hours - 9) * 60 + minutes;
-    const totalGridMinutes = 14 * 60;
+    // 10시부터 22시까지 총 12시간 기준
+    const totalMinutesFromStart = (hours - 10) * 60 + minutes;
+    const totalGridMinutes = 12 * 60;
     return (totalMinutesFromStart / totalGridMinutes) * 100;
   };
 
@@ -68,7 +68,7 @@ export default function RoomsPage() {
     const [startH, startM] = startTime.split(":").map(Number);
     const [endH, endM] = endTime.split(":").map(Number);
     const durationMinutes = (endH * 60 + endM) - (startH * 60 + startM);
-    const totalGridMinutes = 14 * 60;
+    const totalGridMinutes = 12 * 60;
     return (durationMinutes / totalGridMinutes) * 100;
   };
 
@@ -125,13 +125,13 @@ export default function RoomsPage() {
                   </div>
 
                   {/* Table Body (Time & Content) */}
-                  <div className="flex relative h-[840px]"> {/* 14시간 * 60px = 840px */}
+                  <div className="flex relative h-[720px]"> {/* 12시간 * 60px = 720px */}
                     
                     {/* Time Column (Left Sidebar) */}
                     <div className="sticky left-0 z-30 w-16 bg-white dark:bg-background-dark border-r border-border-light dark:border-border-dark flex-shrink-0 flex flex-col">
-                      {Array.from({ length: 14 }, (_, i) => (
+                      {Array.from({ length: 12 }, (_, i) => (
                         <div key={i} className="flex-1 border-b border-border-light/30 dark:border-border-dark/30 text-xs text-text-light-secondary dark:text-dark-secondary font-medium flex items-start justify-center pt-2">
-                          {9 + i}:00
+                          {10 + i}:00
                         </div>
                       ))}
                     </div>
@@ -140,7 +140,7 @@ export default function RoomsPage() {
                     <div className="flex flex-1 relative">
                       {/* Background Grid Lines (Horizontal) */}
                       <div className="absolute inset-0 flex flex-col z-0 pointer-events-none">
-                         {Array.from({ length: 14 }, (_, i) => (
+                         {Array.from({ length: 12 }, (_, i) => (
                            <div key={i} className="flex-1 border-b border-border-light/30 dark:border-border-dark/30" />
                          ))}
                       </div>
