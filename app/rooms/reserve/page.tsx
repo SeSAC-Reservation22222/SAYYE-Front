@@ -19,35 +19,36 @@ function ReserveContent() {
   const [rooms, setRooms] = useState<RoomResponse[]>([]);
   const [courses, setCourses] = useState<CourseResponse[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<number | null>(null);
-  // 현재 시간을 30분 단위로 반올림하는 함수
+  // 현재 시간을 다음 30분 단위로 올림하는 함수
   const getRoundedCurrentTime = (): string => {
     const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
+    let hours = now.getHours();
+    let minutes = now.getMinutes();
     
-    // 30분 단위로 반올림
-    let roundedMinutes = minutes < 30 ? 0 : 30;
-    let roundedHours = hours;
-    
-    // 30분 이상이면 다음 시간으로 넘어가지만, 30분으로 설정
-    // (예: 14:35 → 14:30, 14:40 → 15:00이 아니라 14:30)
-    // 사용자 요구사항에 따라 14:09 → 14:00, 17:51 → 17:30
-    if (minutes >= 30) {
-      roundedMinutes = 30;
+    // 다음 30분 단위로 올림
+    // 0분이면 그대로, 1-30분이면 30분으로, 31-59분이면 다음 시간의 0분으로
+    if (minutes === 0) {
+      // 현재 시간 그대로 유지
+      minutes = 0;
+    } else if (minutes <= 30) {
+      // 1-30분이면 30분으로 올림
+      minutes = 30;
     } else {
-      roundedMinutes = 0;
+      // 31-59분이면 다음 시간의 0분으로 올림
+      hours += 1;
+      minutes = 0;
     }
     
     // 시간 범위 제한 (10:00 ~ 22:00)
-    if (roundedHours < 10) {
-      roundedHours = 10;
-      roundedMinutes = 0;
-    } else if (roundedHours >= 22) {
-      roundedHours = 22;
-      roundedMinutes = 0;
+    if (hours < 10) {
+      hours = 10;
+      minutes = 0;
+    } else if (hours >= 22) {
+      hours = 22;
+      minutes = 0;
     }
     
-    return `${roundedHours.toString().padStart(2, "0")}:${roundedMinutes.toString().padStart(2, "0")}:00`;
+    return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:00`;
   };
 
   const today = new Date().toISOString().split("T")[0];
