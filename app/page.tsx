@@ -31,7 +31,7 @@ export default function HomePage() {
               <div className="flex w-full flex-wrap justify-center gap-3 p-4">
                 <div className="flex min-w-72 flex-col gap-3">
                   <p className="text-4xl font-black tracking-[-0.033em] text-text-light-primary dark:text-text-dark-primary sm:text-5xl">
-                    Say Ye에 오신 것을 환영합니다
+                    SeSAC Meet 에 오신 것을 환영합니다
                   </p>
                   <p className="text-base font-normal text-text-light-secondary dark:text-text-dark-secondary">
                     회의실을 예약하거나 시스템을 관리하세요.
@@ -67,7 +67,7 @@ export default function HomePage() {
             <footer className="flex flex-col gap-6 px-5 py-10 text-center @container">
               <div className="flex flex-col items-center justify-center gap-4">
                 <p className="text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary">
-                  Say Ye 서비스를 이용해보셨나요? 소중한 의견을 들려주세요!
+                  SeSAC Meet 서비스를 이용해보셨나요? 소중한 의견을 들려주세요!
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   {/* 사용자 가이드 버튼 */}
@@ -94,7 +94,7 @@ export default function HomePage() {
                 </div>
               </div>
               <p className="text-xs font-normal text-text-light-secondary dark:text-text-dark-secondary">
-                © 2025 Say Ye. All rights reserved.
+                © 2025 SeSAC Meet. All rights reserved.
               </p>
             </footer>
           </div>

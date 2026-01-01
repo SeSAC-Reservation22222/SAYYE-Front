@@ -1,15 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Header from "@/components/common/Header";
 import { roomApi } from "@/lib/api/room";
 import { reservationApi } from "@/lib/api/reservation";
 import type { RoomResponse, ReservationResponse } from "@/types";
-import Link from "next/link";
 
-export default function RoomsPage() {
+export default function RoomMonitorPage() {
   const [rooms, setRooms] = useState<RoomResponse[]>([]);
-  const [selectedDate, setSelectedDate] = useState<string>(
+  // 항상 오늘 날짜로 고정
+  const [selectedDate] = useState<string>(
     new Date().toISOString().split("T")[0]
   );
   const [reservations, setReservations] = useState<Record<number, ReservationResponse[]>>({});
@@ -50,12 +49,6 @@ export default function RoomsPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
-    return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일 ${weekdays[date.getDay()]}요일`;
-  };
-
   const getTimePosition = (time: string) => {
     const [hours, minutes] = time.split(":").map(Number);
     // 9시부터 23시까지 총 14시간 기준 (28개 슬롯)
@@ -81,32 +74,22 @@ export default function RoomsPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col">
-      <Header 
-        variant="page"
-        rightContent={
-          <div className="flex flex-1 justify-end items-center gap-4 sm:gap-6">
-            <Link
-              href="/rooms/select"
-              className="flex items-center justify-center gap-2 min-w-[100px] h-10 px-4 bg-primary text-white text-sm font-bold rounded-lg hover:bg-opacity-90 transition-all"
-            >
-              <span className="truncate">새 예약</span>
-            </Link>
-          </div>
-        }
-      />
+    <div className="relative flex min-h-screen w-full flex-col bg-background-light dark:bg-background-dark">
       <main className="flex flex-1 justify-center px-4 sm:px-8 md:px-12 lg:px-20 xl:px-40 py-5">
         <div className="flex w-full max-w-7xl flex-col">
           <main className="flex flex-col gap-6 mt-8">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-2">
-              <p className="text-4xl font-black tracking-tighter">회의실 예약 현황</p>
-              <div className="flex gap-3">
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-background-dark dark:border dark:border-border-dark pl-4 pr-3 shadow-sm hover:bg-gray-50 dark:hover:bg-white/10 transition-colors"
-                />
+              <p className="text-4xl font-black tracking-tighter">금일 회의실 예약 현황</p>
+              
+              {/* QR Code Placeholder */}
+              <div className="flex items-center gap-4 bg-white dark:bg-zinc-800 p-2 rounded-lg shadow-sm border border-border-light dark:border-border-dark">
+                <div className="text-right hidden sm:block">
+                  <p className="text-sm font-bold text-text-light-primary dark:text-text-dark-primary">회의실 예약하기</p>
+                  <p className="text-xs text-text-light-secondary dark:text-text-dark-secondary">QR을 스캔하세요</p>
+                </div>
+                <div className="size-16 bg-gray-200 dark:bg-gray-700 rounded-md flex items-center justify-center">
+                  <span className="text-xs text-gray-500">QR</span>
+                </div>
               </div>
             </div>
             <div className="py-3 overflow-x-auto sm:px-2">
@@ -262,5 +245,3 @@ export default function RoomsPage() {
     </div>
   );
 }
-
-
