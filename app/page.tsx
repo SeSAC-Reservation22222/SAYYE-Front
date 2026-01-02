@@ -37,7 +37,14 @@ export default function HomePage() {
                     SeSAC Book 에 오신 것을 환영합니다
                   </p>
                   <p className="text-base font-normal text-text-light-secondary dark:text-text-dark-secondary">
-                    회의실을 예약하거나 시스템을 관리하세요.
+                    회의실을 예약하거나{" "}
+                    <Link
+                      href="/login"
+                      className="text-text-light-secondary dark:text-text-dark-secondary hover:opacity-80 transition-opacity cursor-pointer"
+                    >
+                      시스템을 관리
+                    </Link>
+                    하세요.
                   </p>
                 </div>
               </div>
