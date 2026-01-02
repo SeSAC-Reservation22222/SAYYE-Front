@@ -118,7 +118,7 @@ export default function AdminPage() {
               <div className="px-2">
                 <h2 className="text-4xl font-black tracking-tighter">관리자 페이지</h2>
                 <p className="mt-2 text-text-light-secondary dark:text-dark-secondary">
-                  Say Ye 시스템을 관리하고 설정을 변경합니다.
+                  SeSAC Book 시스템을 관리하고 설정을 변경합니다.
                 </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2">

@@ -3,15 +3,18 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Header from "@/components/common/Header";
+import { isAdmin } from "@/lib/utils/jwt";
 
 export default function HomePage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isUserAdmin, setIsUserAdmin] = useState(false);
 
   useEffect(() => {
     const checkAuth = () => {
       if (typeof window === "undefined") return;
       const token = localStorage.getItem("accessToken");
       setIsLoggedIn(Boolean(token));
+      setIsUserAdmin(isAdmin());
     };
 
     checkAuth();
@@ -80,7 +83,20 @@ export default function HomePage() {
                     <span className="text-lg">📖</span>
                     <span>사용자 가이드 보기</span>
                   </a>
-                  
+
+                  {/* 관리자 가이드 버튼 */}
+                  {isUserAdmin && (
+                    <a
+                      className="group flex items-center gap-2 rounded-full bg-primary/10 px-6 py-2.5 text-sm font-bold text-primary transition-all hover:bg-primary/20 hover:scale-105 active:scale-95"
+                      href="#"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <span className="text-lg">⚙️</span>
+                      <span>관리자 가이드 보기</span>
+                    </a>
+                  )}
+
                   {/* 피드백 설문 버튼 */}
                   <a
                     className="group flex items-center gap-2 rounded-full bg-primary/10 px-6 py-2.5 text-sm font-bold text-primary transition-all hover:bg-primary/20 hover:scale-105 active:scale-95"
