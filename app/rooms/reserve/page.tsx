@@ -299,6 +299,12 @@ function ReserveContent() {
                       onChange={(e) => setStartMinute(Number(e.target.value))}
                     />
                   </div>
+                  {/* 20시 30분 이상일 때 경고 메시지 표시 */}
+                  {(startHour > 20 || (startHour === 20 && startMinute >= 30)) && (
+                    <p className="text-sm text-red-500 mt-1">
+                      22시까지 회의실 이용이 가능합니다.
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="font-bold text-base mb-2 block">
