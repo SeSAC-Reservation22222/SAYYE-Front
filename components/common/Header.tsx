@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { isAdmin } from "@/lib/utils/jwt";
 import Modal from "./Modal";
@@ -24,6 +24,7 @@ export default function Header({
   variant = "default"
 }: HeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
   const [notices, setNotices] = useState<NoticeResponse[]>([]);
@@ -82,11 +83,16 @@ export default function Header({
     try {
       const { authApi } = await import("@/lib/api/auth");
       await authApi.logout();
-      localStorage.removeItem("accessToken");
-      setIsLoggedIn(false);
-      window.location.href = "/login";
     } catch (error) {
       console.error("로그아웃 실패:", error);
+    } finally {
+      // 에러 여부와 관계없이 항상 실행하여 404 방지
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("role");
+      setIsLoggedIn(false);
+      // 클라이언트 사이드 라우팅으로 로그인 페이지로 이동 (404 방지)
+      router.push("/login");
     }
   };
 

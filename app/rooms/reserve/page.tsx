@@ -39,13 +39,16 @@ function ReserveContent() {
       minutes = 0;
     }
     
-    // 시간 범위 제한 (10:00 ~ 22:00)
-    if (hours < 10) {
-      hours = 10;
+    // 시간 범위 제한 (09:00 ~ 21:30)
+    if (hours < 9) {
+      hours = 9;
       minutes = 0;
-    } else if (hours >= 22) {
-      hours = 22;
-      minutes = 0;
+    } else if (hours > 21) {
+      hours = 21;
+      minutes = 30;
+    } else if (hours === 21 && minutes > 30) {
+      hours = 21;
+      minutes = 30;
     }
     
     return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:00`;
@@ -53,7 +56,20 @@ function ReserveContent() {
 
   const today = new Date().toISOString().split("T")[0];
   const [selectedDate, setSelectedDate] = useState<string>(today);
-  const [startTime, setStartTime] = useState<string>(getRoundedCurrentTime());
+  
+  // 시작 시간을 시와 분으로 분리
+  const getInitialTime = () => {
+    const time = getRoundedCurrentTime();
+    const [h, m] = time.split(":").map(Number);
+    return { hour: h, minute: m };
+  };
+  
+  const [startHour, setStartHour] = useState<number>(getInitialTime().hour);
+  const [startMinute, setStartMinute] = useState<number>(getInitialTime().minute);
+  
+  // startTime을 시와 분으로부터 생성
+  const startTime = `${startHour.toString().padStart(2, "0")}:${startMinute.toString().padStart(2, "0")}:00`;
+  
   const [duration, setDuration] = useState<number>(2);
   const [formData, setFormData] = useState({
     courseId: "",
@@ -172,14 +188,20 @@ function ReserveContent() {
     return endMinutes <= 1320;
   };
 
-  const timeOptions = Array.from({ length: 24 }, (_, i) => {
-    const hour = 10 + Math.floor(i / 2);
-    const minute = i % 2 === 0 ? "00" : "30";
+  // 시 드롭다운 옵션: 09시부터 21시까지
+  const hourOptions = Array.from({ length: 13 }, (_, i) => {
+    const hour = 9 + i;
     return {
-      value: `${hour.toString().padStart(2, "0")}:${minute}:00`,
-      label: `${hour}:${minute}`,
+      value: hour.toString(),
+      label: `${hour}시`,
     };
   });
+
+  // 분 드롭다운 옵션: 0분, 30분
+  const minuteOptions = [
+    { value: "0", label: "0분" },
+    { value: "30", label: "30분" },
+  ];
 
   const durationOptions = [
     { value: "0.5", label: "30분" },
@@ -190,8 +212,7 @@ function ReserveContent() {
 
   useEffect(() => {
     // startTime 변경 시 duration 유효성 체크 및 자동 조정
-    const [h, m] = startTime.split(":").map(Number);
-    const startMinutes = h * 60 + m;
+    const startMinutes = startHour * 60 + startMinute;
     const currentEndMinutes = startMinutes + duration * 60;
     const closeMinutes = 1320; // 22:00
 
@@ -200,11 +221,10 @@ function ReserveContent() {
       if (maxDuration < 0.5) maxDuration = 0.5;
       setDuration(maxDuration);
     }
-  }, [startTime]);
+  }, [startHour, startMinute, duration]);
 
   const adminDurationOptions = (() => {
-    const [h, m] = startTime.split(":").map(Number);
-    const startMinutes = h * 60 + m;
+    const startMinutes = startHour * 60 + startMinute;
     const closeMinutes = 1320; // 22:00
     const opts = [];
 
@@ -246,9 +266,12 @@ function ReserveContent() {
                       setSelectedDate(newDate);
                       // 오늘 날짜로 변경되면 현재 시간으로 설정, 미래 날짜면 기본값(10:00)으로 설정
                       if (newDate === today) {
-                        setStartTime(getRoundedCurrentTime());
+                        const { hour, minute } = getInitialTime();
+                        setStartHour(hour);
+                        setStartMinute(minute);
                       } else {
-                        setStartTime("10:00:00");
+                        setStartHour(10);
+                        setStartMinute(0);
                       }
                     }}
                     min={today}
@@ -264,11 +287,24 @@ function ReserveContent() {
                 </div>
                 <div>
                   <label className="font-bold text-base mb-2 block">시작 시간</label>
-                  <Select
-                    options={timeOptions}
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                  />
+                  <div className="flex gap-2">
+                    <Select
+                      options={hourOptions}
+                      value={startHour.toString()}
+                      onChange={(e) => setStartHour(Number(e.target.value))}
+                    />
+                    <Select
+                      options={minuteOptions}
+                      value={startMinute.toString()}
+                      onChange={(e) => setStartMinute(Number(e.target.value))}
+                    />
+                  </div>
+                  {/* 20시 30분 이상일 때 경고 메시지 표시 */}
+                  {(startHour > 20 || (startHour === 20 && startMinute >= 30)) && (
+                    <p className="text-sm text-red-500 mt-1">
+                      22시까지 회의실 이용이 가능합니다.
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="font-bold text-base mb-2 block">
