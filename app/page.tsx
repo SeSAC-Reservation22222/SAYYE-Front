@@ -95,7 +95,7 @@ export default function HomePage() {
                   {isUserAdmin && (
                     <a
                       className="group flex items-center gap-2 rounded-full bg-primary/10 px-6 py-2.5 text-sm font-bold text-primary transition-all hover:bg-primary/20 hover:scale-105 active:scale-95"
-                      href="#"
+                      href="https://www.notion.so/2dcff06ad20f80898378d403fe14b1c1?source=copy_link"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
