@@ -21,6 +21,7 @@ export default function AdminReservationsPage() {
     roomId: "",
     status: "",
     userName: "",
+    date: "",
   });
 
   useEffect(() => {
@@ -57,6 +58,10 @@ export default function AdminReservationsPage() {
 
   const filteredReservations = useMemo(() => {
     let filtered = [...rawReservations];
+    
+    if (filters.date) {
+      filtered = filtered.filter(res => res.reservationDate === filters.date);
+    }
     
     if (filters.roomId) {
       const selectedRoomName = rooms.find(r => r.id === Number(filters.roomId))?.roomName;
@@ -103,7 +108,13 @@ export default function AdminReservationsPage() {
 
           {/* Filtering Bar */}
           <Card className="mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Input
+                label="날짜 필터"
+                type="date"
+                value={filters.date}
+                onChange={(e) => setFilters({ ...filters, date: e.target.value })}
+              />
               <Select
                 label="회의실 필터"
                 options={[
@@ -137,7 +148,6 @@ export default function AdminReservationsPage() {
             {filteredReservations.length === 0 ? (
               <Card>
                 <div className="py-12 flex flex-col items-center justify-center text-text-light-secondary dark:text-dark-secondary">
-                  <span className="material-symbols-outlined text-4xl mb-2 opacity-20">event_busy</span>
                   <p>조건에 맞는 예약 내역이 없습니다.</p>
                 </div>
               </Card>
