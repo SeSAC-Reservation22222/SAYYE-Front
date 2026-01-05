@@ -56,6 +56,14 @@ export default function Header({
       try {
         const data = await noticeApi.getNotices();
         const activeNotices = data.filter((notice) => notice.status);
+        
+        // 정렬 로직: 상단 고정(pinned) 우선, 그 다음 수정일(updatedAt) 최신순
+        activeNotices.sort((a, b) => {
+          if (a.pinned && !b.pinned) return -1;
+          if (!a.pinned && b.pinned) return 1;
+          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+        });
+        
         setNotices(activeNotices);
         setNoticeCount(activeNotices.length);
       } catch (error) {
