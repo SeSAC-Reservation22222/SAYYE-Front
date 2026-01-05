@@ -18,6 +18,7 @@ export default function AdminNoticesPage() {
     title: "",
     content: "",
     status: true,
+    pinned: false,
   });
 
   useEffect(() => {
@@ -27,7 +28,13 @@ export default function AdminNoticesPage() {
   const fetchNotices = async () => {
     try {
       const data = await noticeApi.getNotices();
-      setNotices(data);
+      // 정렬: 게시중 우선 -> 상단고정 우선 -> 최신순
+      const sortedData = data.sort((a, b) => {
+        if (a.status !== b.status) return a.status ? -1 : 1;
+        if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+      setNotices(sortedData);
     } catch (error) {
       console.error("공지사항 목록 조회 실패:", error);
     } finally {
@@ -54,6 +61,7 @@ export default function AdminNoticesPage() {
         title: formData.title.trim(),
         content: formData.content.trim(),
         status: formData.status,
+        pinned: formData.pinned,
       };
 
       if (editingNotice) {
@@ -69,6 +77,7 @@ export default function AdminNoticesPage() {
         title: "",
         content: "",
         status: true,
+        pinned: false,
       });
       fetchNotices();
     } catch (error: any) {
@@ -101,6 +110,7 @@ export default function AdminNoticesPage() {
       title: notice.title,
       content: notice.content,
       status: notice.status,
+      pinned: notice.pinned,
     });
     setShowForm(true);
   };
@@ -120,12 +130,40 @@ export default function AdminNoticesPage() {
     try {
       await noticeApi.updateNoticeStatus(noticeId);
       // 목록 새로고침 없이 로컬 상태 업데이트로 반응성 향상
-      setNotices(prev => prev.map(notice => 
-        notice.id === noticeId ? { ...notice, status: !notice.status } : notice
-      ));
+      setNotices(prev => {
+        const updated = prev.map(notice => 
+          notice.id === noticeId ? { ...notice, status: !notice.status } : notice
+        );
+        // 상태 변경 후 다시 정렬
+        return updated.sort((a, b) => {
+          if (a.status !== b.status) return a.status ? -1 : 1;
+          if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
+      });
     } catch (error) {
       console.error("상태 변경 실패:", error);
       alert("상태 변경에 실패했습니다.");
+    }
+  };
+
+  const handleTogglePinned = async (noticeId: number) => {
+    try {
+      await noticeApi.updateNoticePinned(noticeId);
+      setNotices(prev => {
+        const updated = prev.map(notice => 
+          notice.id === noticeId ? { ...notice, pinned: !notice.pinned } : notice
+        );
+        // 상태 변경 후 다시 정렬
+        return updated.sort((a, b) => {
+          if (a.status !== b.status) return a.status ? -1 : 1;
+          if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
+      });
+    } catch (error) {
+      console.error("상단 고정 변경 실패:", error);
+      alert("상단 고정 변경에 실패했습니다.");
     }
   };
 
@@ -189,19 +227,35 @@ export default function AdminNoticesPage() {
                   />
                 </div>
                 
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="status"
-                    checked={formData.status}
-                    onChange={(e) =>
-                      setFormData({ ...formData, status: e.target.checked })
-                    }
-                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                  />
-                  <label htmlFor="status" className="text-sm font-medium text-gray-700 dark:text-gray-300 select-none">
-                    게시하기 (체크 시 사용자에게 보입니다)
-                  </label>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="status"
+                      checked={formData.status}
+                      onChange={(e) =>
+                        setFormData({ ...formData, status: e.target.checked })
+                      }
+                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    />
+                    <label htmlFor="status" className="text-sm font-medium text-gray-700 dark:text-gray-300 select-none">
+                      게시하기 (체크 시 사용자에게 보입니다)
+                    </label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="pinned"
+                      checked={formData.pinned}
+                      onChange={(e) =>
+                        setFormData({ ...formData, pinned: e.target.checked })
+                      }
+                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    />
+                    <label htmlFor="pinned" className="text-sm font-medium text-gray-700 dark:text-gray-300 select-none">
+                      상단 고정 (체크 시 상단에 고정됩니다)
+                    </label>
+                  </div>
                 </div>
 
                 <div className="flex gap-2 mt-2">
@@ -218,6 +272,7 @@ export default function AdminNoticesPage() {
                         title: "",
                         content: "",
                         status: true,
+                        pinned: false,
                       });
                     }}
                   >
@@ -235,13 +290,20 @@ export default function AdminNoticesPage() {
                   <div>
                     <div className="flex justify-between items-start mb-2 gap-2">
                       <h3 className="text-xl font-bold">{notice.title}</h3>
-                      <span className={`px-2 py-0.5 text-xs font-bold rounded-full whitespace-nowrap ${
-                        notice.status 
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100" 
-                          : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
-                      }`}>
-                        {notice.status ? "게시중" : "숨김"}
-                      </span>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <span className={`px-2 py-0.5 text-xs font-bold rounded-full whitespace-nowrap ${
+                          notice.status 
+                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100" 
+                            : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+                        }`}>
+                          {notice.status ? "게시중" : "숨김"}
+                        </span>
+                        {notice.pinned && (
+                          <span className="px-2 py-0.5 text-xs font-bold rounded-full whitespace-nowrap bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100">
+                            상단고정
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div className="text-sm text-text-light-secondary dark:text-text-dark-secondary mb-3 line-clamp-3">
                       {notice.content}
@@ -261,6 +323,14 @@ export default function AdminNoticesPage() {
                       className={!notice.status ? "text-primary border-primary hover:bg-primary/10" : ""}
                     >
                       {notice.status ? "숨기기" : "게시하기"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleTogglePinned(notice.id)}
+                      size="sm"
+                      className={notice.pinned ? "text-blue-600 border-blue-600 hover:bg-blue-50" : ""}
+                    >
+                      {notice.pinned ? "고정해제" : "상단고정"}
                     </Button>
                     <Button
                       variant="outline"

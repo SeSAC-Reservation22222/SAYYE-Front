@@ -27,6 +27,11 @@ export const noticeApi = {
     return response.data;
   },
 
+  updateNoticePinned: async (noticeId: number): Promise<NoticeResponse> => {
+    const response = await apiClient.put<NoticeResponse>(`/notices/${noticeId}/pinnedToggle`);
+    return response.data;
+  },
+
   deleteNotice: async (noticeId: number): Promise<void> => {
     await apiClient.delete(`/notices/${noticeId}`);
   },

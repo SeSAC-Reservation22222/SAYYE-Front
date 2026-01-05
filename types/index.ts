@@ -148,6 +148,7 @@ export interface NoticeRequest {
   title: string;
   content: string;
   status: boolean;
+  pinned: boolean; // 상단 고정 여부
 }
 
 export interface NoticeResponse {
@@ -155,6 +156,7 @@ export interface NoticeResponse {
   title: string;
   content: string;
   status: boolean;
+  pinned: boolean; // 상단 고정 여부
   createdAt: string; // ISO 8601 형식 (YYYY-MM-DDTHH:mm:ss)
   updatedAt: string; // ISO 8601 형식 (YYYY-MM-DDTHH:mm:ss)
 }
