@@ -258,32 +258,69 @@ function ReserveContent() {
               <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                 <div>
                   <label className="font-bold text-base mb-2 block">예약 날짜</label>
-                  <Input
-                    type="date"
-                    value={selectedDate}
-                    onChange={(e) => {
-                      const newDate = e.target.value;
-                      setSelectedDate(newDate);
-                      // 오늘 날짜로 변경되면 현재 시간으로 설정, 미래 날짜면 기본값(10:00)으로 설정
-                      if (newDate === today) {
-                        const { hour, minute } = getInitialTime();
-                        setStartHour(hour);
-                        setStartMinute(minute);
-                      } else {
-                        setStartHour(10);
-                        setStartMinute(0);
-                      }
-                    }}
-                    min={today}
-                    max={
-                      isAdminUser
-                        ? undefined
-                        : new Date(new Date().setDate(new Date().getDate() + 1))
-                            .toISOString()
-                            .split("T")[0]
-                    }
-                    required
-                  />
+                  {isAdminUser ? (
+                    <Input
+                      type="date"
+                      value={selectedDate}
+                      onChange={(e) => {
+                        const newDate = e.target.value;
+                        setSelectedDate(newDate);
+                        // 오늘 날짜로 변경되면 현재 시간으로 설정, 미래 날짜면 기본값(09:00)으로 설정
+                        if (newDate === today) {
+                          const { hour, minute } = getInitialTime();
+                          setStartHour(hour);
+                          setStartMinute(minute);
+                        } else {
+                          setStartHour(9);
+                          setStartMinute(0);
+                        }
+                      }}
+                      min={today}
+                      required
+                    />
+                  ) : (
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedDate(today);
+                          const { hour, minute } = getInitialTime();
+                          setStartHour(hour);
+                          setStartMinute(minute);
+                        }}
+                        className={`flex-1 h-10 px-2 rounded-lg text-sm font-medium transition-colors border ${
+                          selectedDate === today
+                            ? "bg-primary text-white border-primary"
+                            : "bg-white text-gray-700 hover:bg-gray-50 border-gray-200 dark:bg-zinc-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-zinc-700"
+                        }`}
+                      >
+                        {today} (금일)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const tomorrowDate = new Date();
+                          tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+                          const tomorrow = tomorrowDate.toISOString().split("T")[0];
+                          
+                          setSelectedDate(tomorrow);
+                          setStartHour(9);
+                          setStartMinute(0);
+                        }}
+                        className={`flex-1 h-10 px-2 rounded-lg text-sm font-medium transition-colors border ${
+                          selectedDate !== today
+                            ? "bg-primary text-white border-primary"
+                            : "bg-white text-gray-700 hover:bg-gray-50 border-gray-200 dark:bg-zinc-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-zinc-700"
+                        }`}
+                      >
+                        {(() => {
+                          const tomorrowDate = new Date();
+                          tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+                          return `${tomorrowDate.toISOString().split("T")[0]} (명일)`;
+                        })()}
+                      </button>
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="font-bold text-base mb-2 block">시작 시간</label>
