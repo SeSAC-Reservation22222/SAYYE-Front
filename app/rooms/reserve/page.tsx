@@ -335,16 +335,20 @@ function ReserveContent() {
                 <div>
                   <label className="font-bold text-base mb-2 block">시작 시간</label>
                   <div className="flex gap-2">
-                    <Select
-                      options={hourOptions}
-                      value={startHour.toString()}
-                      onChange={(e) => setStartHour(Number(e.target.value))}
-                    />
-                    <Select
-                      options={minuteOptions}
-                      value={startMinute.toString()}
-                      onChange={(e) => setStartMinute(Number(e.target.value))}
-                    />
+                    <div className="flex-1">
+                      <Select
+                        options={hourOptions}
+                        value={startHour.toString()}
+                        onChange={(e) => setStartHour(Number(e.target.value))}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Select
+                        options={minuteOptions}
+                        value={startMinute.toString()}
+                        onChange={(e) => setStartMinute(Number(e.target.value))}
+                      />
+                    </div>
                   </div>
                   {/* 20시 30분 이상일 때 경고 메시지 표시 */}
                   {(startHour > 20 || (startHour === 20 && startMinute >= 30)) && (
@@ -467,13 +471,16 @@ function ReserveContent() {
               </div>
               <div className="grid grid-cols-3 text-sm">
                 <span className="text-gray-500 dark:text-gray-400 col-span-1">날짜</span>
-                <span className="font-bold col-span-2">{selectedDate}</span>
+                <span className="font-bold col-span-2">
+                  {selectedDate} ({selectedDate === today ? "금일" : "명일"})
+                </span>
               </div>
               <div className="grid grid-cols-3 text-sm">
                 <span className="text-gray-500 dark:text-gray-400 col-span-1">시간</span>
                 <span className="font-bold col-span-2">
                   {startTime.split(":").slice(0, 2).join(":")} ~{" "}
                   {calculateEndTime(startTime, duration).split(":").slice(0, 2).join(":")}
+                  {" "}({duration >= 1 ? `${Math.floor(duration)}시간` : ""}{duration % 1 !== 0 ? `${duration >= 1 ? " " : ""}30분` : ""})
                 </span>
               </div>
               
