@@ -51,9 +51,9 @@ export default function RoomMonitorPage() {
 
   const getTimePosition = (time: string) => {
     const [hours, minutes] = time.split(":").map(Number);
-    // 10시부터 22시까지 총 12시간 기준
-    const totalMinutesFromStart = (hours - 10) * 60 + minutes;
-    const totalGridMinutes = 12 * 60;
+    // 9시부터 22시까지 총 13시간 기준
+    const totalMinutesFromStart = (hours - 9) * 60 + minutes;
+    const totalGridMinutes = 13 * 60;
     return (totalMinutesFromStart / totalGridMinutes) * 100;
   };
 
@@ -61,7 +61,7 @@ export default function RoomMonitorPage() {
     const [startH, startM] = startTime.split(":").map(Number);
     const [endH, endM] = endTime.split(":").map(Number);
     const durationMinutes = (endH * 60 + endM) - (startH * 60 + startM);
-    const totalGridMinutes = 12 * 60;
+    const totalGridMinutes = 13 * 60;
     return (durationMinutes / totalGridMinutes) * 100;
   };
 
@@ -108,13 +108,13 @@ export default function RoomMonitorPage() {
                   </div>
 
                   {/* Table Body (Time & Content) */}
-                  <div className="flex relative h-[720px]"> {/* 12시간 * 60px = 720px */}
+                  <div className="flex relative h-[780px]"> {/* 13시간 * 60px = 780px */}
                     
                     {/* Time Column (Left Sidebar) */}
                     <div className="sticky left-0 z-30 w-16 bg-white dark:bg-background-dark border-r border-border-light dark:border-border-dark flex-shrink-0 flex flex-col">
-                      {Array.from({ length: 12 }, (_, i) => (
+                      {Array.from({ length: 13 }, (_, i) => (
                         <div key={i} className="flex-1 border-b border-border-light/30 dark:border-border-dark/30 text-xs text-text-light-secondary dark:text-dark-secondary font-medium flex items-start justify-center pt-2">
-                          {10 + i}:00
+                          {9 + i}:00
                         </div>
                       ))}
                     </div>
@@ -123,7 +123,7 @@ export default function RoomMonitorPage() {
                     <div className="flex flex-1 relative">
                       {/* Background Grid Lines (Horizontal) */}
                       <div className="absolute inset-0 flex flex-col z-0 pointer-events-none">
-                         {Array.from({ length: 12 }, (_, i) => (
+                         {Array.from({ length: 13 }, (_, i) => (
                            <div key={i} className="flex-1 border-b border-border-light/30 dark:border-border-dark/30" />
                          ))}
                       </div>
@@ -150,11 +150,21 @@ export default function RoomMonitorPage() {
                                   const top = getTimePosition(res.startTime);
                                   const height = getTimeWidth(res.startTime, res.endTime);
                                   
+                                  // 예약 시간(분) 계산
+                                  const [startH, startM] = res.startTime.split(":").map(Number);
+                                  const [endH, endM] = res.endTime.split(":").map(Number);
+                                  const durationMinutes = (endH * 60 + endM) - (startH * 60 + startM);
+                                  
+                                  // 시간에 따른 텍스트 크기 결정
+                                  const isShortReservation = durationMinutes <= 30;
+                                  const nameTextSize = isShortReservation ? "text-[10px] sm:text-xs" : "text-xs sm:text-sm";
+                                  const courseTextSize = isShortReservation ? "text-[9px] sm:text-[10px]" : "text-[10px] sm:text-xs";
+                                  
                                   return (
                                     <div
                                       key={res.id}
                                       onClick={() => setSelectedReservation(res)}
-                                      className="absolute left-1 right-1 bg-primary rounded-lg text-white px-2 shadow-sm z-20 transition-all hover:brightness-110 cursor-pointer hover:z-30 overflow-hidden flex flex-col justify-center"
+                                      className="absolute left-1 right-1 bg-green-100 dark:bg-green-900/80 rounded-lg text-green-900 dark:text-green-50 px-2 shadow-sm z-20 transition-all hover:brightness-95 dark:hover:brightness-110 cursor-pointer hover:z-30 overflow-hidden flex flex-col justify-center border border-green-200 dark:border-green-800"
                                       style={{
                                         top: `${top}%`,
                                         height: `calc(${height}% - 2px)`,
@@ -162,10 +172,10 @@ export default function RoomMonitorPage() {
                                     >
                                       {/* 모든 예약에 대해 이름과 시간을 가로 배치(공간 부족 시 줄바꿈) 혹은 한 줄 유지 */}
                                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full">
-                                        <p className="text-[10px] sm:text-xs font-bold truncate shrink-0 mr-1">
+                                        <p className={`${nameTextSize} font-bold truncate shrink-0 mr-1`}>
                                           {res.userName}
                                         </p>
-                                        <p className="text-[9px] sm:text-[10px] truncate opacity-90 shrink-0">
+                                        <p className={`${courseTextSize} truncate opacity-75 shrink-0`}>
                                           {res.courseName}
                                         </p>
                                       </div>

@@ -167,11 +167,21 @@ export default function RoomsPage() {
                                   const top = getTimePosition(res.startTime);
                                   const height = getTimeWidth(res.startTime, res.endTime);
                                   
+                                  // 예약 시간(분) 계산
+                                  const [startH, startM] = res.startTime.split(":").map(Number);
+                                  const [endH, endM] = res.endTime.split(":").map(Number);
+                                  const durationMinutes = (endH * 60 + endM) - (startH * 60 + startM);
+                                  
+                                  // 시간에 따른 텍스트 크기 결정
+                                  const isShortReservation = durationMinutes <= 30;
+                                  const nameTextSize = isShortReservation ? "text-[10px] sm:text-xs" : "text-xs sm:text-sm";
+                                  const courseTextSize = isShortReservation ? "text-[9px] sm:text-[10px]" : "text-[10px] sm:text-xs";
+                                  
                                   return (
                                     <div
                                       key={res.id}
                                       onClick={() => setSelectedReservation(res)}
-                                      className="absolute left-1 right-1 bg-primary rounded-lg text-white px-2 shadow-sm z-20 transition-all hover:brightness-110 cursor-pointer hover:z-30 overflow-hidden flex flex-col justify-center"
+                                      className="absolute left-1 right-1 bg-green-100 dark:bg-green-900/80 rounded-lg text-green-900 dark:text-green-50 px-2 shadow-sm z-20 transition-all hover:brightness-95 dark:hover:brightness-110 cursor-pointer hover:z-30 overflow-hidden flex flex-col justify-center border border-green-200 dark:border-green-800"
                                       style={{
                                         top: `${top}%`,
                                         height: `calc(${height}% - 2px)`,
@@ -179,10 +189,10 @@ export default function RoomsPage() {
                                     >
                                       {/* 모든 예약에 대해 이름과 시간을 가로 배치(공간 부족 시 줄바꿈) 혹은 한 줄 유지 */}
                                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full">
-                                        <p className="text-[10px] sm:text-xs font-bold truncate shrink-0 mr-1">
+                                        <p className={`${nameTextSize} font-bold truncate shrink-0 mr-1`}>
                                           {res.userName}
                                         </p>
-                                        <p className="text-[9px] sm:text-[10px] truncate opacity-90 shrink-0">
+                                        <p className={`${courseTextSize} truncate opacity-75 shrink-0`}>
                                           {res.courseName}
                                         </p>
                                       </div>
