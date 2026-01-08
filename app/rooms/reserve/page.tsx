@@ -111,8 +111,17 @@ function ReserveContent() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  // ... (existing code, keeping fetchData)
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedRoom) return;
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmReservation = async () => {
     if (!selectedRoom) return;
 
     setLoading(true);
@@ -163,6 +172,7 @@ function ReserveContent() {
       }
 
       alert(errorMessage);
+      setShowConfirmModal(false);
     } finally {
       setLoading(false);
     }
@@ -251,9 +261,9 @@ function ReserveContent() {
     <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
       <Header />
       <main className="flex-1 w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          <aside className="w-full lg:w-1/3 xl:w-1/4 flex flex-col gap-6">
-            <h1 className="text-4xl font-black tracking-tight">회의실 예약</h1>
+        <div className="flex flex-col items-center">
+          <div className="w-full max-w-2xl flex flex-col gap-6">
+            <h1 className="text-4xl font-black tracking-tight self-start">회의실 예약</h1>
             <Card>
               <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                 <div>
@@ -280,7 +290,7 @@ function ReserveContent() {
                     />
                   ) : (
                     <div className="flex gap-2">
-                      <button
+                       <button
                         type="button"
                         onClick={() => {
                           setSelectedDate(today);
@@ -288,7 +298,7 @@ function ReserveContent() {
                           setStartHour(hour);
                           setStartMinute(minute);
                         }}
-                        className={`flex-1 h-10 px-2 rounded-lg text-sm font-medium transition-colors border ${
+                        className={`flex-1 h-10 px-2 rounded-lg text-sm font-medium transition-colors border whitespace-nowrap ${
                           selectedDate === today
                             ? "bg-primary text-white border-primary"
                             : "bg-white text-gray-700 hover:bg-gray-50 border-gray-200 dark:bg-zinc-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-zinc-700"
@@ -307,7 +317,7 @@ function ReserveContent() {
                           setStartHour(9);
                           setStartMinute(0);
                         }}
-                        className={`flex-1 h-10 px-2 rounded-lg text-sm font-medium transition-colors border ${
+                        className={`flex-1 h-10 px-2 rounded-lg text-sm font-medium transition-colors border whitespace-nowrap ${
                           selectedDate !== today
                             ? "bg-primary text-white border-primary"
                             : "bg-white text-gray-700 hover:bg-gray-50 border-gray-200 dark:bg-zinc-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-zinc-700"
@@ -435,43 +445,85 @@ function ReserveContent() {
                 </Button>
               </form>
             </Card>
-          </aside>
-          <section className="flex-1">
-            <div className="flex flex-col gap-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="text-2xl font-bold">
-                    {selectedDate && new Date(selectedDate).toLocaleDateString("ko-KR", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                      weekday: "long",
-                    })}
-                  </h2>
-                </div>
-              </div>
-              <Card>
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <div>
-                    <h3 className="text-lg font-bold">예약 정보 확인</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      선택하신 정보가 맞는지 확인 후 예약을 완료해주세요.
-                    </p>
-                    <p className="text-base font-semibold mt-2">
-                      {rooms.find((r) => r.id === selectedRoom)?.roomName} / {selectedDate} /{" "}
-                      {startTime.split(":").slice(0, 2).join(":")} ~{" "}
-                      {calculateEndTime(startTime, duration)
-                        .split(":")
-                        .slice(0, 2)
-                        .join(":")}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </section>
+          </div>
         </div>
       </main>
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowConfirmModal(false)}>
+          <div className="bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl shadow-2xl p-6 flex flex-col gap-6 animate-in fade-in zoom-in duration-200" onClick={(e) => e.stopPropagation()}>
+            <div className="flex flex-col gap-2">
+              <h3 className="text-2xl font-bold">예약 정보 확인</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                선택하신 정보가 맞는지 다시 한번 확인해주세요.
+              </p>
+            </div>
+            
+            <div className="flex flex-col gap-4 bg-gray-50 dark:bg-zinc-800/50 p-4 rounded-xl border border-gray-100 dark:border-zinc-800">
+              <div className="grid grid-cols-3 text-sm">
+                <span className="text-gray-500 dark:text-gray-400 col-span-1">회의실</span>
+                <span className="font-bold col-span-2">{rooms.find((r) => r.id === selectedRoom)?.roomName}</span>
+              </div>
+              <div className="grid grid-cols-3 text-sm">
+                <span className="text-gray-500 dark:text-gray-400 col-span-1">날짜</span>
+                <span className="font-bold col-span-2">{selectedDate}</span>
+              </div>
+              <div className="grid grid-cols-3 text-sm">
+                <span className="text-gray-500 dark:text-gray-400 col-span-1">시간</span>
+                <span className="font-bold col-span-2">
+                  {startTime.split(":").slice(0, 2).join(":")} ~{" "}
+                  {calculateEndTime(startTime, duration).split(":").slice(0, 2).join(":")}
+                </span>
+              </div>
+              
+              {!isAdminUser && (
+                <>
+                  <div className="grid grid-cols-3 text-sm">
+                    <span className="text-gray-500 dark:text-gray-400 col-span-1">클래스</span>
+                    <span className="font-bold col-span-2">
+                      {courses.find(c => c.id.toString() === formData.courseId)?.courseName}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 text-sm">
+                    <span className="text-gray-500 dark:text-gray-400 col-span-1">예약자명</span>
+                    <span className="font-bold col-span-2">{formData.userName}</span>
+                  </div>
+                  <div className="grid grid-cols-3 text-sm">
+                    <span className="text-gray-500 dark:text-gray-400 col-span-1">식별번호</span>
+                    <span className="font-bold col-span-2">{formData.phoneLastNumber}</span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="p-3 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/50 rounded-lg">
+              <p className="text-xs font-bold text-red-600 dark:text-red-400 text-center leading-relaxed">
+                회의실은 1인당 하루 최대 2시간, 1회만 예약 가능합니다.
+                <br />
+                회의실 종류와 관계없이 하루에 하나의 회의실만 이용할 수 있습니다.
+              </p>
+            </div>
+
+            <div className="flex gap-3 mt-2">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="flex-1 h-12 rounded-xl font-bold border border-gray-200 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
+                disabled={loading}
+              >
+                취소
+              </button>
+              <button
+                onClick={handleConfirmReservation}
+                className="flex-1 h-12 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={loading}
+              >
+                {loading ? "처리중..." : "확정하기"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
