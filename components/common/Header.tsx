@@ -21,7 +21,7 @@ export default function Header({
   showLogout = false,
   showNav = true,
   rightContent,
-  variant = "default"
+  variant = "default",
 }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -56,14 +56,16 @@ export default function Header({
       try {
         const data = await noticeApi.getNotices();
         const activeNotices = data.filter((notice) => notice.status);
-        
+
         // 정렬 로직: 상단 고정(pinned) 우선, 그 다음 수정일(updatedAt) 최신순
         activeNotices.sort((a, b) => {
           if (a.pinned && !b.pinned) return -1;
           if (!a.pinned && b.pinned) return 1;
-          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+          return (
+            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+          );
         });
-        
+
         setNotices(activeNotices);
         setNoticeCount(activeNotices.length);
       } catch (error) {
@@ -107,58 +109,71 @@ export default function Header({
   const headerContent = (
     <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-8">
-            <Link
-              href="/"
-              className={`flex items-center gap-4 hover:opacity-80 transition-opacity ${variant === "simple" ? "text-text-light-primary dark:text-text-dark-primary" : ""
-                }`}
+        <div className="flex items-center gap-8">
+          <Link
+            href="/"
+            className={`flex items-center gap-4 hover:opacity-80 transition-opacity ${
+              variant === "simple"
+                ? "text-text-light-primary dark:text-text-dark-primary"
+                : ""
+            }`}
+          >
+            <Image
+              src="/logo.png"
+              alt="SeSAC Book 로고"
+              width={variant === "simple" ? 24 : 32}
+              height={variant === "simple" ? 24 : 32}
+              className={`${
+                variant === "simple" ? "h-6 w-6" : "h-8 w-8"
+              } object-contain`}
+            />
+            <h2
+              className={
+                variant === "simple"
+                  ? "text-lg font-bold tracking-[-0.015em]"
+                  : "text-xl font-bold"
+              }
             >
-              <Image
-                src="/logo.png"
-                alt="SeSAC Book 로고"
-                width={variant === "simple" ? 24 : 32}
-                height={variant === "simple" ? 24 : 32}
-                className={`${variant === "simple" ? "h-6 w-6" : "h-8 w-8"
-                  } object-contain`}
-              />
-              <h2
-                className={
-                  variant === "simple"
-                    ? "text-lg font-bold tracking-[-0.015em]"
-                    : "text-xl font-bold"
-                }
-              >
-                SeSAC Book
-              </h2>
-            </Link>
+              SeSAC Book
+            </h2>
+          </Link>
           {variant === "default" && showNav && (
             <nav className="hidden md:flex items-center gap-8">
-              {pathname !== "/rooms" && pathname !== "/rooms/reserve" && pathname !== "/rooms/select" && (
-                <Link
-                  href="/rooms"
-                  className="text-sm font-medium transition-colors hover:text-primary"
-                >
-                  회의실 예약
-                </Link>
-              )}
-              {isAdminUser && pathname !== "/rooms/reserve" && pathname !== "/rooms/select" && (
-                <Link
-                  href="/admin"
-                  className={`text-sm font-medium transition-colors ${pathname === "/admin"
-                    ? "text-primary"
-                    : "hover:text-primary"
+              {pathname !== "/rooms" &&
+                pathname !== "/rooms/reserve" &&
+                pathname !== "/rooms/select" && (
+                  <Link
+                    href="/rooms"
+                    className="text-sm font-medium transition-colors hover:text-primary"
+                  >
+                    회의실 예약
+                  </Link>
+                )}
+              {isAdminUser &&
+                pathname !== "/rooms/reserve" &&
+                pathname !== "/rooms/select" && (
+                  <Link
+                    href="/admin"
+                    className={`text-sm font-medium transition-colors ${
+                      pathname === "/admin"
+                        ? "text-primary"
+                        : "hover:text-primary"
                     }`}
-                >
-                  관리자 페이지
-                </Link>
-              )}
+                  >
+                    관리자 페이지
+                  </Link>
+                )}
             </nav>
           )}
         </div>
         {rightContent || (
-          <div className={`flex items-center gap-4 ${variant === "simple" ? "flex-1 justify-end" : ""}`}>
-            
-            {((variant === "simple" && isLoggedIn) || (variant !== "simple" && showLogout)) && (
+          <div
+            className={`flex items-center gap-4 ${
+              variant === "simple" ? "flex-1 justify-end" : ""
+            }`}
+          >
+            {((variant === "simple" && isLoggedIn) ||
+              (variant !== "simple" && showLogout)) && (
               <button
                 onClick={handleLogout}
                 className="flex h-10 min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-primary/20 px-4 text-sm font-bold text-text-light-primary transition-colors hover:bg-primary/30 dark:bg-primary/30 dark:text-text-dark-primary dark:hover:bg-primary/40"
@@ -182,10 +197,13 @@ export default function Header({
 
   return (
     <>
-      <header className={`sticky top-0 z-50 w-full border-b backdrop-blur-sm ${variant === "simple"
-          ? "border-primary/20 bg-background-light/80 dark:bg-background-dark/80"
-          : "border-border-light dark:border-border-dark bg-background-light/80 dark:bg-background-dark/80"
-        }`}>
+      <header
+        className={`sticky top-0 z-50 w-full border-b backdrop-blur-sm ${
+          variant === "simple"
+            ? "border-primary/20 bg-background-light/80 dark:bg-background-dark/80"
+            : "border-border-light dark:border-border-dark bg-background-light/80 dark:bg-background-dark/80"
+        }`}
+      >
         {headerContent}
       </header>
 
@@ -237,4 +255,3 @@ export default function Header({
     </>
   );
 }
-

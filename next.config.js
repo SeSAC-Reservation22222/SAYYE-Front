@@ -1,13 +1,21 @@
 /** @type {import('next').NextConfig} */
+const path = require("path");
+
 const nextConfig = {
   reactStrictMode: true,
-  // S3 정적 호스팅을 위한 설정
-  output: 'export', // 정적 HTML로 내보내기
+
+  // S3 정적 배포 필수
+  output: "export",
+  trailingSlash: true,
+
   images: {
-    unoptimized: true, // S3에서는 이미지 최적화 비활성화
+    unoptimized: true,
+  },
+
+  webpack: (config) => {
+    config.resolve.alias["@"] = path.resolve(__dirname);
+    return config;
   },
 };
 
 module.exports = nextConfig;
-
-
