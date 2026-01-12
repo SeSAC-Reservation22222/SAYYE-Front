@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { roomApi } from "@/lib/api/room";
 import { reservationApi } from "@/lib/api/reservation";
 import type { RoomResponse, ReservationResponse } from "@/types";
@@ -74,7 +75,7 @@ export default function RoomMonitorPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col bg-background-light dark:bg-background-dark">
+    <div className="relative flex min-h-screen w-full flex-col bg-zinc-200 dark:bg-black">
       <main className="flex flex-1 justify-center px-4 sm:px-8 md:px-12 lg:px-20 xl:px-40 py-5">
         <div className="flex w-full max-w-7xl flex-col">
           <main className="flex flex-col gap-6 mt-8">
@@ -82,13 +83,42 @@ export default function RoomMonitorPage() {
               <p className="text-4xl font-black tracking-tighter">금일 회의실 예약 현황</p>
               
               {/* QR Code Placeholder */}
-              <div className="flex items-center gap-4 bg-white dark:bg-zinc-800 p-2 rounded-lg shadow-sm border border-border-light dark:border-border-dark">
-                <div className="text-right hidden sm:block">
-                  <p className="text-sm font-bold text-text-light-primary dark:text-text-dark-primary">회의실 예약하기</p>
-                  <p className="text-xs text-text-light-secondary dark:text-text-dark-secondary">QR을 스캔하세요</p>
-                </div>
-                <div className="size-16 bg-gray-200 dark:bg-gray-700 rounded-md flex items-center justify-center">
-                  <span className="text-xs text-gray-500">QR</span>
+              <div className="flex items-center gap-4">
+                {/* Refresh Button */}
+                <button
+                  onClick={() => window.location.reload()}
+                  className="flex items-center gap-4 bg-white dark:bg-zinc-800 p-2 rounded-lg shadow-sm border border-border-light dark:border-border-dark group hover:bg-gray-50 dark:hover:bg-zinc-700 transition-all active:scale-95 text-left"
+                >
+                  <div className="text-right hidden sm:block">
+                    <p className="text-sm font-bold text-text-light-primary dark:text-text-dark-primary">
+                      새로고침
+                    </p>
+                    <p className="text-xs text-text-light-secondary dark:text-text-dark-secondary">
+                      화면을 새로고침 후<br />예약 현황을 확인해주세요
+                    </p>
+                  </div>
+                  <div className="size-16 bg-blue-50 dark:bg-blue-900/20 rounded-md flex items-center justify-center text-blue-500 group-hover:rotate-180 transition-transform duration-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12"/>
+                      <path d="M3 3v9h9"/>
+                    </svg>
+                  </div>
+                </button>
+
+                {/* QR Code */}
+                <div className="flex items-center gap-4 bg-white dark:bg-zinc-800 p-2 rounded-lg shadow-sm border border-border-light dark:border-border-dark">
+                  <div className="text-right hidden sm:block">
+                    <p className="text-sm font-bold text-text-light-primary dark:text-text-dark-primary">회의실 예약하기</p>
+                    <p className="text-xs text-text-light-secondary dark:text-text-dark-secondary">QR을 스캔하세요</p>
+                  </div>
+                  <div className="relative size-16 rounded-md overflow-hidden bg-gray-200 dark:bg-gray-700">
+                    <Image
+                      src="/rooms.jpeg"
+                      alt="Booking QR Code"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -108,7 +138,7 @@ export default function RoomMonitorPage() {
                   </div>
 
                   {/* Table Body (Time & Content) */}
-                  <div className="flex relative h-[780px]"> {/* 13시간 * 60px = 780px */}
+                  <div className="flex relative h-[1470px]"> {/* 13시간 * 90px = 1170px */}
                     
                     {/* Time Column (Left Sidebar) */}
                     <div className="sticky left-0 z-30 w-16 bg-white dark:bg-background-dark border-r border-border-light dark:border-border-dark flex-shrink-0 flex flex-col">
