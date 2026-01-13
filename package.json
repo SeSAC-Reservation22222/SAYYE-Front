@@ -11,6 +11,7 @@
   "dependencies": {
     "@swc/helpers": "0.5.5",
     "axios": "1.7.7",
+    "browser-image-compression": "^2.0.2",
     "browserslist": "^4.28.1",
     "caniuse-lite": "^1.0.30001764",
     "es-define-property": "^1.0.1",
