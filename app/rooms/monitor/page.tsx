@@ -4,13 +4,14 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { roomApi } from "@/lib/api/room";
 import { reservationApi } from "@/lib/api/reservation";
+import { getTodayDate } from "@/lib/utils/date";
 import type { RoomResponse, ReservationResponse } from "@/types";
 
 export default function RoomMonitorPage() {
   const [rooms, setRooms] = useState<RoomResponse[]>([]);
   // 항상 오늘 날짜로 고정
   const [selectedDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
+    getTodayDate()
   );
   const [reservations, setReservations] = useState<Record<number, ReservationResponse[]>>({});
   const [loading, setLoading] = useState(true);

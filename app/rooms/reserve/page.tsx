@@ -11,6 +11,7 @@ import { roomApi } from "@/lib/api/room";
 import { courseApi } from "@/lib/api/course";
 import { reservationApi } from "@/lib/api/reservation";
 import { getDecodedToken, isAdmin } from "@/lib/utils/jwt";
+import { getTodayDate } from "@/lib/utils/date";
 import type { RoomResponse, CourseResponse, ReservationRequest, AdminReservationRequest } from "@/types";
 
 function ReserveContent() {
@@ -54,7 +55,7 @@ function ReserveContent() {
     return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:00`;
   };
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = getTodayDate();
   const [selectedDate, setSelectedDate] = useState<string>(today);
   
   // 시작 시간을 시와 분으로 분리
@@ -311,7 +312,10 @@ function ReserveContent() {
                         onClick={() => {
                           const tomorrowDate = new Date();
                           tomorrowDate.setDate(tomorrowDate.getDate() + 1);
-                          const tomorrow = tomorrowDate.toISOString().split("T")[0];
+                          const year = tomorrowDate.getFullYear();
+                          const month = String(tomorrowDate.getMonth() + 1).padStart(2, '0');
+                          const day = String(tomorrowDate.getDate()).padStart(2, '0');
+                          const tomorrow = `${year}-${month}-${day}`;
                           
                           setSelectedDate(tomorrow);
                           setStartHour(9);
@@ -326,7 +330,10 @@ function ReserveContent() {
                         {(() => {
                           const tomorrowDate = new Date();
                           tomorrowDate.setDate(tomorrowDate.getDate() + 1);
-                          return `${tomorrowDate.toISOString().split("T")[0]} (명일)`;
+                          const year = tomorrowDate.getFullYear();
+                          const month = String(tomorrowDate.getMonth() + 1).padStart(2, '0');
+                          const day = String(tomorrowDate.getDate()).padStart(2, '0');
+                          return `${year}-${month}-${day} (명일)`;
                         })()}
                       </button>
                     </div>
