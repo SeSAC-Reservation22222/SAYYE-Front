@@ -4,13 +4,14 @@ import { useState, useEffect } from "react";
 import Header from "@/components/common/Header";
 import { roomApi } from "@/lib/api/room";
 import { reservationApi } from "@/lib/api/reservation";
+import { getTodayDate } from "@/lib/utils/date";
 import type { RoomResponse, ReservationResponse } from "@/types";
 import Link from "next/link";
 
 export default function RoomsPage() {
   const [rooms, setRooms] = useState<RoomResponse[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
+    getTodayDate()
   );
   const [reservations, setReservations] = useState<Record<number, ReservationResponse[]>>({});
   const [loading, setLoading] = useState(true);
