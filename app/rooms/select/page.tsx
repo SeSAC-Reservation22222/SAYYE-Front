@@ -7,19 +7,29 @@ import Header from "@/components/common/Header";
 import Card from "@/components/common/Card";
 import Button from "@/components/common/Button";
 import { roomApi } from "@/lib/api/room";
+import { isMobileDevice } from "@/lib/utils/image";
 import type { RoomResponse } from "@/types";
 
 export default function RoomSelectPage() {
   const router = useRouter();
   const [rooms, setRooms] = useState<RoomResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // 회의실 location에 따라 이미지 경로를 반환하는 함수
+  useEffect(() => {
+    // 클라이언트 사이드에서만 모바일 감지
+    setIsMobile(isMobileDevice());
+  }, []);
+
+  // 회의실 location과 디바이스 타입에 따라 이미지 경로를 반환하는 함수
   const getRoomImagePath = (location: number | null): string => {
-    if (location === 1) return "/room-image/1F-room.jpeg";
-    if (location === 2) return "/room-image/2F-room.jpeg";
+    const prefix = isMobile ? "mob" : "web";
+    const extension = isMobile ? "webp" : "jpeg";
+    
+    if (location === 1) return `/room-image/${prefix}-1F-room.${extension}`;
+    if (location === 2) return `/room-image/${prefix}-2F-room.${extension}`;
     // 기본 이미지 (location이 없거나 다른 경우)
-    return "/room-image/1F-room.jpeg";
+    return `/room-image/${prefix}-1F-room.${extension}`;
   };
 
   useEffect(() => {
