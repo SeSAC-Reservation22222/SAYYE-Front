@@ -81,7 +81,7 @@ export default function RoomSelectPage() {
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {rooms.map((room) => (
+              {rooms.map((room, index) => (
                 <Card
                   key={room.id}
                   className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
@@ -95,6 +95,7 @@ export default function RoomSelectPage() {
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, 50vw"
+                      priority={index < 2} // 첫 2개 이미지만 우선 로드
                     />
                   </div>
                   <div className="flex flex-col gap-2">
