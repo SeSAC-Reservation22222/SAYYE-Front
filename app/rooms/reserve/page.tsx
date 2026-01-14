@@ -305,7 +305,7 @@ function ReserveContent() {
                             : "bg-white text-gray-700 hover:bg-gray-50 border-gray-200 dark:bg-zinc-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-zinc-700"
                         }`}
                       >
-                        {today} (금일)
+                        {today} (오늘)
                       </button>
                       <button
                         type="button"
@@ -333,7 +333,7 @@ function ReserveContent() {
                           const year = tomorrowDate.getFullYear();
                           const month = String(tomorrowDate.getMonth() + 1).padStart(2, '0');
                           const day = String(tomorrowDate.getDate()).padStart(2, '0');
-                          return `${year}-${month}-${day} (명일)`;
+                          return `${year}-${month}-${day} (내일)`;
                         })()}
                       </button>
                     </div>
@@ -435,18 +435,26 @@ function ReserveContent() {
                         required
                         minLength={2}
                       />
-                      <Input
-                        label="식별번호 (숫자 4자리)"
-                        placeholder="1234"
-                        type="tel"
-                        pattern="[0-9]{4}"
-                        value={formData.phoneLastNumber}
-                        onChange={(e) =>
-                          setFormData({ ...formData, phoneLastNumber: e.target.value })
-                        }
-                        required
-                        maxLength={4}
-                      />
+                      <div>
+                        <Input
+                          label="식별번호 (숫자 4자리)"
+                          placeholder="1234"
+                          type="tel"
+                          pattern="[0-9]{4}"
+                          value={formData.phoneLastNumber}
+                          onChange={(e) =>
+                            setFormData({ ...formData, phoneLastNumber: e.target.value })
+                          }
+                          required
+                          maxLength={4}
+                        />
+                        {/* 식별번호 입력 시 안내 메시지 표시 */}
+                        {formData.phoneLastNumber && (
+                          <p className="text-sm text-blue-500 mt-1">
+                            예약 조회시 식별번호가 사용됩니다.
+                          </p>
+                        )}
+                      </div>
                     </>
                   )}
                 </div>
@@ -479,7 +487,7 @@ function ReserveContent() {
               <div className="grid grid-cols-3 text-sm">
                 <span className="text-gray-500 dark:text-gray-400 col-span-1">날짜</span>
                 <span className="font-bold col-span-2">
-                  {selectedDate} ({selectedDate === today ? "금일" : "명일"})
+                  {selectedDate}
                 </span>
               </div>
               <div className="grid grid-cols-3 text-sm">
