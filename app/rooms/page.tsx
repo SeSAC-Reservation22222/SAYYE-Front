@@ -5,6 +5,7 @@ import Header from "@/components/common/Header";
 import { roomApi } from "@/lib/api/room";
 import { reservationApi } from "@/lib/api/reservation";
 import { getTodayDate } from "@/lib/utils/date";
+import { isAdmin } from "@/lib/utils/jwt";
 import type { RoomResponse, ReservationResponse } from "@/types";
 import Link from "next/link";
 
@@ -16,8 +17,11 @@ export default function RoomsPage() {
   const [reservations, setReservations] = useState<Record<number, ReservationResponse[]>>({});
   const [loading, setLoading] = useState(true);
   const [selectedReservation, setSelectedReservation] = useState<ReservationResponse | null>(null);
+  const [isAdminUser, setIsAdminUser] = useState(false);
 
   useEffect(() => {
+    // 관리자 여부 확인
+    setIsAdminUser(isAdmin());
     fetchRooms();
   }, []);
 
@@ -71,6 +75,33 @@ export default function RoomsPage() {
     const durationMinutes = (endH * 60 + endM) - (startH * 60 + startM);
     const totalGridMinutes = 13 * 60;
     return (durationMinutes / totalGridMinutes) * 100;
+  };
+
+  const handleCancelReservation = async () => {
+    if (!selectedReservation) return;
+
+    if (!confirm("정말 예약을 취소하시겠습니까?")) {
+      return;
+    }
+
+    try {
+      await reservationApi.cancelReservation(selectedReservation.id);
+      alert("예약이 취소되었습니다.");
+      setSelectedReservation(null);
+      // 예약 목록 새로고침
+      fetchReservations();
+    } catch (error: any) {
+      let errorMessage = "예약 취소에 실패했습니다.";
+      
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+      }
+      
+      alert(errorMessage);
+    }
   };
 
   if (loading) {
@@ -261,12 +292,30 @@ export default function RoomsPage() {
               </div>
             </div>
 
-            <button
-              onClick={() => setSelectedReservation(null)}
-              className="mt-4 w-full h-11 bg-primary text-white font-bold rounded-xl hover:opacity-90 transition-opacity"
-            >
-              확인
-            </button>
+            {/* 버튼 영역 */}
+            {isAdminUser && selectedReservation.status === "예약" ? (
+              <div className="flex gap-3 mt-4">
+                <button
+                  onClick={() => setSelectedReservation(null)}
+                  className="flex-1 h-11 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  확인
+                </button>
+                <button
+                  onClick={handleCancelReservation}
+                  className="flex-1 h-11 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-colors"
+                >
+                  예약 취소
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setSelectedReservation(null)}
+                className="mt-4 w-full h-11 bg-primary text-white font-bold rounded-xl hover:opacity-90 transition-opacity"
+              >
+                확인
+              </button>
+            )}
           </div>
         </div>
       )}
