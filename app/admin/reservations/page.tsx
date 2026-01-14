@@ -198,7 +198,7 @@ export default function AdminReservationsPage() {
                       }`}>
                         {reservation.status}
                       </span>
-                      {reservation.status === '예약' && (
+                      {(reservation.status === '예약' || reservation.status === '관리자 예약') && (
                         <Button
                           variant="secondary"
                           onClick={() => handleCancel(reservation.id)}
