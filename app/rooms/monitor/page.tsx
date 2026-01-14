@@ -81,7 +81,7 @@ export default function RoomMonitorPage() {
         <div className="flex w-full max-w-7xl flex-col">
           <main className="flex flex-col gap-6 mt-8">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-2">
-              <p className="text-4xl font-black tracking-tighter">금일 회의실 예약 현황</p>
+              <p className="text-4xl font-black tracking-tighter">오늘 회의실 예약 현황</p>
               
               {/* QR Code Placeholder */}
               <div className="flex items-center gap-4">
