@@ -5,6 +5,7 @@ import Header from "@/components/common/Header";
 import { roomApi } from "@/lib/api/room";
 import { reservationApi } from "@/lib/api/reservation";
 import { getTodayDate } from "@/lib/utils/date";
+import { isAdmin } from "@/lib/utils/jwt";
 import type { RoomResponse, ReservationResponse } from "@/types";
 import Link from "next/link";
 
@@ -16,8 +17,11 @@ export default function RoomsPage() {
   const [reservations, setReservations] = useState<Record<number, ReservationResponse[]>>({});
   const [loading, setLoading] = useState(true);
   const [selectedReservation, setSelectedReservation] = useState<ReservationResponse | null>(null);
+  const [isAdminUser, setIsAdminUser] = useState(false);
 
   useEffect(() => {
+    // 관리자 여부 확인
+    setIsAdminUser(isAdmin());
     fetchRooms();
   }, []);
 
@@ -73,6 +77,33 @@ export default function RoomsPage() {
     return (durationMinutes / totalGridMinutes) * 100;
   };
 
+  const handleCancelReservation = async () => {
+    if (!selectedReservation) return;
+
+    if (!confirm("정말 예약을 취소하시겠습니까?")) {
+      return;
+    }
+
+    try {
+      await reservationApi.cancelReservation(selectedReservation.id);
+      alert("예약이 취소되었습니다.");
+      setSelectedReservation(null);
+      // 예약 목록 새로고침
+      fetchReservations();
+    } catch (error: any) {
+      let errorMessage = "예약 취소에 실패했습니다.";
+      
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+      }
+      
+      alert(errorMessage);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -114,11 +145,11 @@ export default function RoomsPage() {
               <div className="min-w-full w-fit rounded-none sm:rounded-xl border-y sm:border border-border-light dark:border-border-dark bg-white dark:bg-background-dark shadow-sm">
                 <div className="relative min-w-fit">
                   {/* Table Header (Rooms) */}
-                  <div className="flex border-b border-border-light dark:border-border-dark bg-gray-50 dark:bg-white/5 sticky top-0 z-30">
-                    <div className="sticky left-0 z-40 w-16 bg-gray-50 dark:bg-white/5 border-r border-border-light dark:border-border-dark flex-shrink-0" />
+                  <div className="flex bg-gray-50 dark:bg-white/5 sticky top-0 z-30 border-b-2 border-border-light dark:border-border-dark">
+                    <div className="sticky left-0 z-40 w-16 bg-gray-50 dark:bg-white/5 flex-shrink-0" />
                     <div className="flex flex-1">
                       {rooms.map((room) => (
-                        <div key={room.id} className="flex-1 min-w-[100px] sm:min-w-[120px] h-12 flex items-center justify-center text-xs sm:text-sm font-bold text-text-light dark:text-text-dark border-r border-border-light/50 dark:border-border-dark/50 last:border-r-0">
+                        <div key={room.id} className="flex-1 min-w-[100px] sm:min-w-[120px] h-12 flex items-center justify-center text-xs sm:text-sm font-bold text-text-light dark:text-text-dark">
                           {room.roomName}
                         </div>
                       ))}
@@ -129,9 +160,9 @@ export default function RoomsPage() {
                   <div className="flex relative h-[780px]"> {/* 13시간 * 60px = 780px */}
                     
                     {/* Time Column (Left Sidebar) */}
-                    <div className="sticky left-0 z-30 w-16 bg-white dark:bg-background-dark border-r border-border-light dark:border-border-dark flex-shrink-0 flex flex-col">
+                    <div className="sticky left-0 z-30 w-16 bg-white dark:bg-background-dark border-r-2 border-border-light dark:border-border-dark flex-shrink-0 flex flex-col">
                       {Array.from({ length: 13 }, (_, i) => (
-                        <div key={i} className="flex-1 border-b border-border-light/30 dark:border-border-dark/30 text-xs text-text-light-secondary dark:text-dark-secondary font-medium flex items-start justify-center pt-2">
+                        <div key={i} className="flex-1 border-b-2 border-border-light/60 dark:border-border-dark/60 text-xs text-text-light-secondary dark:text-dark-secondary font-medium flex items-start justify-center pt-2">
                           {9 + i}:00
                         </div>
                       ))}
@@ -142,7 +173,7 @@ export default function RoomsPage() {
                       {/* Background Grid Lines (Horizontal) */}
                       <div className="absolute inset-0 flex flex-col z-0 pointer-events-none">
                          {Array.from({ length: 13 }, (_, i) => (
-                           <div key={i} className="flex-1 border-b border-border-light/30 dark:border-border-dark/30" />
+                           <div key={i} className="flex-1 border-b-2 border-border-light/60 dark:border-border-dark/60" />
                          ))}
                       </div>
 
@@ -150,7 +181,7 @@ export default function RoomsPage() {
                       {rooms.map((room) => {
                         const roomReservations = reservations[room.id] || [];
                         return (
-                          <div key={room.id} className="flex-1 min-w-[100px] sm:min-w-[120px] relative border-r border-border-light/30 dark:border-border-dark/30 last:border-r-0 z-10 group hover:bg-gray-50/30 dark:hover:bg-white/5 transition-colors">
+                          <div key={room.id} className="flex-1 min-w-[100px] sm:min-w-[120px] relative border-r-2 border-border-light/60 dark:border-border-dark/60 last:border-r-0 z-10 group hover:bg-gray-50/30 dark:hover:bg-white/5 transition-colors">
                             {(() => {
                                 // 겹치는 예약 중 가장 최신(ID가 큰 것)만 필터링
                                 const filteredReservations = [...roomReservations]
@@ -254,19 +285,37 @@ export default function RoomsPage() {
               <div className="flex flex-col">
                 <span className="text-xs text-text-light-secondary dark:text-dark-secondary font-medium">상태</span>
                 <span className={`text-sm font-bold mt-1 ${
-                  selectedReservation.status === "예약" ? "text-green-500" : "text-red-500"
+                  selectedReservation.status === "예약" || selectedReservation.status === "관리자 예약" ? "text-green-500" : "text-red-500"
                 }`}>
                   ● {selectedReservation.status}
                 </span>
               </div>
             </div>
 
-            <button
-              onClick={() => setSelectedReservation(null)}
-              className="mt-4 w-full h-11 bg-primary text-white font-bold rounded-xl hover:opacity-90 transition-opacity"
-            >
-              확인
-            </button>
+            {/* 버튼 영역 */}
+            {isAdminUser && (selectedReservation.status === "예약" || selectedReservation.status === "관리자 예약") ? (
+              <div className="flex gap-3 mt-4">
+                <button
+                  onClick={() => setSelectedReservation(null)}
+                  className="flex-1 h-11 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  확인
+                </button>
+                <button
+                  onClick={handleCancelReservation}
+                  className="flex-1 h-11 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-colors"
+                >
+                  예약 취소
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setSelectedReservation(null)}
+                className="mt-4 w-full h-11 bg-primary text-white font-bold rounded-xl hover:opacity-90 transition-opacity"
+              >
+                확인
+              </button>
+            )}
           </div>
         </div>
       )}

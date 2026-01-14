@@ -62,7 +62,7 @@ export interface RoomResponse {
 }
 
 // 예약 관련 타입
-export type ReservationStatus = "예약" | "취소" | "완료";
+export type ReservationStatus = "예약" | "취소" | "완료" | "관리자 예약";
 
 export interface ReservationRequest {
   courseId: number;
